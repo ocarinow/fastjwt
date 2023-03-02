@@ -139,7 +139,7 @@ async def get_token_from_request(
     Returns:
         Optional[RequestToken]: The detected access token
     """
-    for location in set(config.JWT_LOCATIONS).intersection(set(locations)):
+    for location in set(config._JWT_LOCATIONS).intersection(set(locations)):
         try:
             getter = TOKEN_GETTERS.get(location)
             return await getter(request, config=config) if getter else None

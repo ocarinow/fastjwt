@@ -11,7 +11,7 @@ def set_access_cookie(response: Response, token: str, config: FastJWTConfig) -> 
         token (str): access token
         config (FastJWTConfig): Configuration object regarding JWT management
     """
-    if "cookies" in config.JWT_LOCATIONS:
+    if "cookies" in config._JWT_LOCATIONS:
         # Make cookie set op. only possible
         # if "cookies" is a Config TokenLocation
         response.set_cookie(

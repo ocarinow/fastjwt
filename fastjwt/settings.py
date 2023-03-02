@@ -49,10 +49,10 @@ class FastJWTConfig(BaseSettings):
     JWT_ALGORITHM: AlgorithmType = os.getenv("JWT_ALGORITHM", "RS256")
 
     # JWT Base Configuration
-    _JWT_LOCATIONS: Union[str, TokenLocations] = os.getenv(
+    JWT_LOCATIONS: Union[str, TokenLocations] = os.getenv(
         "JWT_LOCATIONS", "cookies,headers,json,query"
     )
-    _JWT_EXCLUDE_REFRESH_ROUTES: Union[str, List[str]] = os.getenv(
+    JWT_EXCLUDE_REFRESH_ROUTES: Union[str, List[str]] = os.getenv(
         "JWT_EXCLUDE_REFRESH_ROUTES", "/logout,/login"
     )
     JWT_EXPIRE_DELTATIME: datetime.timedelta = datetime.timedelta(minutes=15)
@@ -81,8 +81,8 @@ class FastJWTConfig(BaseSettings):
 
     # Properties
     @property
-    def JWT_EXCLUDE_REFRESH_ROUTES(self) -> List[str]:
-        return self._JWT_EXCLUDE_REFRESH_ROUTES.split(",")
+    def _JWT_EXCLUDE_REFRESH_ROUTES(self) -> List[str]:
+        return self.JWT_EXCLUDE_REFRESH_ROUTES.split(",")
 
     @property
     def JWT_ENABLE_COOKIE_IMPLICIT_REFRESH(self) -> bool:
@@ -93,11 +93,11 @@ class FastJWTConfig(BaseSettings):
         return isinstance(self.JWT_EXPIRE_DELTATIME, datetime.timedelta)
 
     @property
-    def JWT_LOCATIONS(self) -> TokenLocations:
-        if isinstance(self._JWT_LOCATIONS, str):
-            return self._JWT_LOCATIONS.split(",")
+    def _JWT_LOCATIONS(self) -> TokenLocations:
+        if isinstance(self.JWT_LOCATIONS, str):
+            return self.JWT_LOCATIONS.split(",")
         else:
-            return self._JWT_LOCATIONS
+            return self.JWT_LOCATIONS
 
     @property
     def _JWT_PUBLIC_KEY(self) -> str:
