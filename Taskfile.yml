@@ -1,0 +1,24 @@
+version: '3'
+
+dotenv: ['.env']
+
+tasks:
+  init:
+    desc: Init the package
+    cmds:
+      - poetry install
+      - pre-commit install --allow-missing-config
+  lock:
+    desc: Lock the dependencies
+    cmds:
+      - poetry export --without-hashes -f requirements.txt --output requirements.txt
+  isort:
+    desc: Run isort on all files
+    cmds:
+      - pre-commit run isort --all-files
+  env:
+    cmds:
+      - cat .env.{{.CLI_ARGS}} > .env && echo "Activate <{{.CLI_ARGS}}> environment variables"
+  run:
+    cmds:
+      - poetry run uvicorn main:app --reload --port $APP_PORT
