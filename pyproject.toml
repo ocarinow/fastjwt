@@ -8,6 +8,9 @@ repository = "https://github.com/ocarinow/fastjwt"
 keywords = ["fastapi", "jwt", "JSON-Web-Token", "authentication", "security", "api"]
 license = "MIT"
 readme = "README.md"
+packages = [
+    { include = "fastjwt/"}
+]
 
 [tool.poetry.dependencies]
 python = ">=3.9"
