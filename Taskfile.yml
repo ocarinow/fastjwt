@@ -11,7 +11,7 @@ tasks:
   lock:
     desc: Lock the dependencies
     cmds:
-      - poetry export --without-hashes -f requirements.txt --output requirements.txt
+      - poetry export --with dev --without-hashes -f requirements.txt --output requirements.txt 
   isort:
     desc: Run isort on all files
     cmds:
