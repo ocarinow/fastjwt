@@ -7,10 +7,10 @@ from typing import Coroutine
 
 from fastapi import Request
 
-from ..types import RequestToken
-from ..types import TokenLocations
-from ..errors import NoAuthorizationError
-from ..settings import FastJWTConfig
+from fastjwt.types import RequestToken
+from fastjwt.types import TokenLocations
+from fastjwt.errors import NoAuthorizationError
+from fastjwt.settings import FastJWTConfig
 
 
 async def _get_token_in_header(

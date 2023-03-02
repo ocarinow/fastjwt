@@ -4,7 +4,6 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Type
-from typing import Union
 from typing import Generic
 from typing import TypeVar
 from typing import Callable
@@ -23,7 +22,6 @@ import fastjwt.utils.http as HTTP_MSG
 
 from .payload import JWTPayload
 from .settings import FastJWTConfig
-from .settings import FastJWTConfigDict
 from .utils.cookies import set_access_cookie
 from .utils.cookies import unset_access_cookie
 from .utils.parsers import FastJWTConfigType

@@ -2,7 +2,6 @@ import os
 import datetime
 from typing import List
 from typing import Union
-from typing import Literal
 from typing import Optional
 from typing import TypedDict
 from distutils.util import strtobool
