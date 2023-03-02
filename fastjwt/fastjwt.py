@@ -20,6 +20,8 @@ from fastapi import HTTPException
 
 import fastjwt.utils.http as HTTP_MSG
 
+from .types import RequestToken
+from .types import TokenLocations
 from .payload import JWTPayload
 from .settings import FastJWTConfig
 from .utils.cookies import set_access_cookie
@@ -60,6 +62,7 @@ class FastJWT(Generic[P, U]):
         self._user_model = user_model
 
         self.user_getter: Optional[Callable[[str], U]] = None
+        self.token_blacklist_checker: Optional[Callable[[str], bool]] = None
 
     @property
     def config(self) -> FastJWTConfig:
@@ -76,8 +79,16 @@ class FastJWT(Generic[P, U]):
     def set_user_getter(self, callback: Callable[[str], U]) -> None:
         self.user_getter = callback
 
+    def set_token_checker(self, callback: Callable[[str], bool]) -> None:
+        self.token_blacklist_checker = callback
+
     def get_user_from_uid(self, uid: str) -> U:
         return self.user_getter(uid)
+
+    def is_token_blacklisted(self, token: str) -> bool:
+        if self.token_blacklist_checker is None:
+            return False
+        return self.token_blacklist_checker(token)
 
     def encode_jwt(self, payload: Dict[str, Any]) -> str:
         """Encode a payload as a JWT
@@ -152,7 +163,8 @@ class FastJWT(Generic[P, U]):
             if self.config.JWT_IS_TOKEN_EXPIRABLE and self.is_payload_expired(payload):
                 return False
             # Check if token in blacklist
-            # TODO
+            if self.is_token_blacklisted(token):
+                return False
             return True
         except JWTExecptions as e:
             logging.error(e)
@@ -323,6 +335,24 @@ class FastJWT(Generic[P, U]):
         """
         return await self._auth_required(request=request, require_fresh=True)
 
+    async def get_token_from_request(
+        self,
+        request: Request,
+        locations: TokenLocations = ["cookies", "headers", "json", "query"],
+    ) -> Optional[RequestToken]:
+        """Get the access token from a request
+
+        Args:
+            request (Request): the request to analyse
+            locations (TokenLocations, optional): Locations to look the token for. Defaults to ["cookies", "headers", "json", "query"].
+
+        Returns:
+            Optional[RequestToken]: The detected access token
+        """
+        return await get_token_from_request(
+            request=request, locations=locations, config=self.config
+        )
+
     async def implicit_refresh_cookie_middleware(
         self, request: Request, call_next: Callable
     ) -> Response:
@@ -339,8 +369,8 @@ class FastJWT(Generic[P, U]):
         if request.url.components.path in self.config.JWT_EXCLUDE_REFRESH_ROUTES:
             return response
         # Get token if available in "cookies"
-        token = await get_token_from_request(
-            request=request, locations=["cookies"], config=self.config
+        token = await self.get_token_from_request(
+            request=request, locations=["cookies"]
         )
         # Refresh token if necessary
         try:
