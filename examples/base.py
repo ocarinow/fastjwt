@@ -1,3 +1,25 @@
+"""Base Example for FastJWT
+
+In this script we create a dummy FastAPI application.
+
+The main features showcased by this app are:
+    - FastJWT Setup
+    - FastJWT Base Configuration
+    - FastJWT Callbacks
+        - User Callback
+        - Token Blacklist Callback
+    - API Logic
+        - Login
+            - Generate an access token
+        - Logout
+            - Add a token to the blacklist
+        - Protected Routes
+        - Acessing User Object in a protected route
+
+
+"""
+
+import base64
 from typing import Dict
 from typing import TypedDict
 
@@ -8,6 +30,7 @@ from pydantic import BaseModel
 
 import fastjwt
 from fastjwt import FastJWT
+from fastjwt import RequestToken
 from fastjwt import FastJWTConfig
 
 # ================================================================
@@ -41,6 +64,8 @@ DB: Dict[str, User] = {
     },
 }
 
+TOKEN_BLACKLIST = []
+
 # ================================================================
 # APPLICATION
 # ================================================================
@@ -51,7 +76,10 @@ app = FastAPI(title="Base FastJWT Example", version=fastjwt.__version__, debug=T
 config = FastJWTConfig()
 config.JWT_COOKIE_SECURE = False  # Secure must always be set to True in Production
 config.JWT_ALGORITHM = "HS256"  # We use a symmetric algorithm for the example, please consider using asymmetric algorithm for better protection
-config.JWT_SECRET_KEY = "Secret Key"  # We set the string to be used as a secret key
+SECRET_KEY = "Secret Key"
+config.JWT_SECRET_KEY = base64.b64encode(
+    SECRET_KEY.encode()
+).decode()  # We set the secret key as a base64 encoded string
 config.JWT_LOCATIONS = [
     "headers",
     "query",
@@ -73,10 +101,25 @@ def get_user_from_db(uid: str) -> User:
     return DB.get(uid)
 
 
+# We define an accessor `(str) -> bool` that given an encoded token
+# checks if the token is blacklisted
+def find_token_in_blacklist(token: str) -> bool:
+    """Simulate the check in a blacklisted token database
+
+    Args:
+        token (str): Encoded token
+
+    Returns:
+        bool: Whether or not the token is blacklisted
+    """
+    return token in TOKEN_BLACKLIST
+
+
 # Once your configuration is done you can instantiate the FastJWT object
 security: FastJWT = FastJWT(user_model=User, config=config)
-# We set our custom callback to the FastJWT object
+# We set our custom callbacks to the FastJWT object
 security.set_user_getter(get_user_from_db)
+security.set_token_checker(find_token_in_blacklist)
 
 
 class LoginForm(BaseModel):
@@ -87,6 +130,11 @@ class LoginForm(BaseModel):
 @app.get("/")
 def home():
     return "OK"
+
+
+@app.get("/blacklist")
+def blacklist():
+    return TOKEN_BLACKLIST
 
 
 @app.post("/login")
@@ -113,6 +161,18 @@ def login(data: LoginForm):
         token = security.create_access_token(uid=email)
         return {"access_token": token}
     raise HTTPException(401, detail={"message": "Bad credentials"})
+
+
+@app.post("/logout", dependencies=[Depends(security.auth_required)])
+def logout(token: RequestToken = Depends(security.get_token_from_request)):
+    # You can access the RequestToken object via the
+    # `FastJWT.get_token_from_request` method
+    # Note that this method returns None if no token is provided in the request
+    # This dependency does not enforce the authentication requirement
+
+    # The logic here is to blacklist the token
+    TOKEN_BLACKLIST.append(token.access_token)
+    return "OK"
 
 
 # Use the FastJWT.auth_required Dependency as a route argument to protected a route
