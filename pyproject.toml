@@ -27,6 +27,13 @@ flake8 = "^6.0.0"
 isort = "^5.12.0"
 python-semantic-release = "^7.33.2"
 dateparser = "^1.1.7"
+genbadge = {extras = ["all"], version = "^1.1.0"}
+pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
+httpx = "^0.23.3"
+docstr-coverage = "^2.2.0"
+coverage = {extras = ["toml"], version = "^7.2.1"}
+ipython = "^8.11.0"
 
 [tool.isort]
 profile = "black"
@@ -49,6 +56,23 @@ changelog_file="CHANGELOG.md"
 changelog_placeholder="<!--next-version-placeholder-->"
 # pre_commit_command = "pip install -r requirements.txt && bash ci/pre_commit_command.sh"
 # include_additional_files="reports/flake8-badge.svg,reports/tests-badge.svg,reports/coverage-badge.svg,reports/docstr-badge.svg"
+
+[tool.coverage.run]
+branch = true
+data_file = "reports/.coverage"
+source = ['fastjwt']
+
+[tool.coverage.html]
+title = "fastjwt coverage report"
+directory = "reports/coverage"
+show_contexts = true
+
+[tool.coverage.xml]
+output = "reports/coverage.xml"
+
+[tool.pytest.ini_options]
+addopts = "--junitxml=reports/junit.xml --cov=fastjwt --cov-report=html --cov-report=xml --cov-context=test"
+filterwarnings = ["ignore::DeprecationWarning"]
 
 [build-system]
 requires = ["poetry-core"]
