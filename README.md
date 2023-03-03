@@ -21,8 +21,8 @@ FastAPI Plugin for reusable JWT Authentication Management
 </p>
 <p style="text-align:center;">
 <a href="https://github.com/ocarinow/fastjwt" alt="Tests"><img src="./reports/tests-badge.svg" alt="Tests"/></a>
-<a href="https://github.com/ocarinow/fastjwt" alt="Coverage"><img src="./reports/coverage-badge.svg" alt="Coverage"/></a>
-<a href="https://github.com/ocarinow/fastjwt" alt="Documentation"><img src="./reports/docstr-badge.svg" alt="Documentation Coverage"/></a>
+<a href="https://github.com/ocarinow/fastjwt" alt="Coverage"><img src="../reports/coverage-badge.svg" alt="Coverage"/></a>
+<a href="https://github.com/ocarinow/fastjwt" alt="Documentation"><img src="../reports/docstr-badge.svg" alt="Documentation Coverage"/></a>
 <a href="https://github.com/ocarinow/fastjwt" alt="Flake8"><img src="./reports/flake8-badge.svg" alt="Flake8"/></a>
 </p>
 <p style="text-align:center;">
