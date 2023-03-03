@@ -34,14 +34,15 @@ def unset_access_cookie(response: Response, config: FastJWTConfig) -> None:
         response (Response): reponse
         config (FastJWTConfig): Configuration object regarding JWT management
     """
-    response.set_cookie(
-        key=config.JWT_COOKIE_NAME,
-        value="",
-        max_age=None,
-        expires=None,
-        path=config.JWT_COOKIE_PATH,
-        domain=config.JWT_COOKIE_DOMAIN,
-        secure=config.JWT_COOKIE_SECURE,
-        httponly=config.JWT_COOKIE_HTTPONLY,
-        samesite=config.JWT_COOKIE_SAMESITE,
-    )
+    response.delete_cookie(key=config.JWT_COOKIE_NAME)
+    # response.set_cookie(
+    #     key=config.JWT_COOKIE_NAME,
+    #     value="",
+    #     max_age=None,
+    #     expires=None,
+    #     path=config.JWT_COOKIE_PATH,
+    #     domain=config.JWT_COOKIE_DOMAIN,
+    #     secure=config.JWT_COOKIE_SECURE,
+    #     httponly=config.JWT_COOKIE_HTTPONLY,
+    #     samesite=config.JWT_COOKIE_SAMESITE,
+    # )
