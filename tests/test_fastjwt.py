@@ -60,15 +60,15 @@ def test_fastjwt_symmetric_config(symmetric_config: FastJWTConfig):
 def test_set_token_checker(security: FastJWT):
     token_checker = lambda string: False
     assert (
-        security.token_blacklist_checker is None
-    ), "Token blacklist callback is already set"
+        security.token_blocklist_checker is None
+    ), "Token blocklist callback is already set"
     security.set_token_checker(token_checker)
     assert (
-        security.token_blacklist_checker == token_checker
-    ), "Token blacklist callback is not expected function"
-    assert id(security.token_blacklist_checker) == id(
+        security.token_blocklist_checker == token_checker
+    ), "Token blocklist callback is not expected function"
+    assert id(security.token_blocklist_checker) == id(
         token_checker
-    ), "Token blacklist callback is not expected function"
+    ), "Token blocklist callback is not expected function"
 
 
 def test_set_user_getter(security: FastJWT):
@@ -284,7 +284,7 @@ def test_verify_expired_token(security: FastJWT):
     assert security.verify_token(token) is False, "Token is valid"
 
 
-def test_verify_blacklisted_token(security: FastJWT):
+def test_verify_blocklisted_token(security: FastJWT):
     security.set_token_checker(lambda x: True)
     kwargs = dict(uid="userId", fresh=True, permissions=["read", "write"])
     token = security.create_access_token(**kwargs)
