@@ -54,8 +54,8 @@ class FastJWTConfig(BaseSettings):
     JWT_EXCLUDE_REFRESH_ROUTES: Union[str, List[str]] = os.getenv(
         "JWT_EXCLUDE_REFRESH_ROUTES", "/logout,/login"
     )
-    JWT_EXPIRE_DELTATIME: datetime.timedelta = datetime.timedelta(minutes=15)
-    JWT_REFRESH_DELTATIME: datetime.timedelta = datetime.timedelta(minutes=10)
+    JWT_EXPIRE_DELTATIME: Optional[datetime.timedelta] = datetime.timedelta(minutes=15)
+    JWT_REFRESH_DELTATIME: Optional[datetime.timedelta] = datetime.timedelta(minutes=10)
 
     # JWT Header Configuration
     JWT_HEADER_NAME: str = os.getenv("JWT_HEADER_NAME", "Authorization")
