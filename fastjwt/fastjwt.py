@@ -208,13 +208,13 @@ class FastJWT(Generic[P, U]):
         payload = self._payload_model(
             uid=uid,
             iat=int(iat.timestamp()),
-            exp=int(exp.timestamp() if exp else None),
+            exp=(int(exp.timestamp()) if exp else None),
             permissions=permissions,
             fresh=fresh,
             **kwargs
         )
 
-        access_token = self.encode_jwt(payload=payload.dict())
+        access_token = self.encode_jwt(payload=payload.dict(exclude_none=True))
         return access_token
 
     def refresh_token(self, token: str, explicit: bool = False) -> Optional[str]:
