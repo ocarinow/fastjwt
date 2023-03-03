@@ -74,7 +74,7 @@ def req(headers, cookies, query, body):
 
 
 @pytest.fixture(scope="function")
-def req_null(headers, cookies, query, body):
+def req_null():
     async def receiver():
         return {
             "type": "http.request",
@@ -89,6 +89,25 @@ def req_null(headers, cookies, query, body):
             "query_string": {},
         },
         receive=receiver,
+    )
+    return req
+
+
+@pytest.fixture(scope="function")
+def req_error():
+    async def receiver():
+        return {
+            "type": "http.request",
+            "body": json.dumps({}).encode(),
+        }
+
+    req = Request(
+        scope={
+            "type": "http",
+            "method": "POST",
+            "headers": [[b"content-type", b"application/json"], [b"cookie", b""]],
+            "query_string": {},
+        },
     )
     return req
 
@@ -185,7 +204,18 @@ async def test_get_token(config: FastJWTConfig, req: Request, location: str):
 
 
 @pytest.mark.asyncio
-async def test_get_token_from_headers(config: FastJWTConfig, req_null: Request):
+async def test_raise_error_on_get_token(config: FastJWTConfig, req_null: Request):
+    assert await get_token_from_request(request=req_null, config=config) is None
+    assert (
+        await get_token_from_request(request=req_null, config=config, locations=[])
+        is None
+    )
+
+
+@pytest.mark.asyncio
+async def test_raise_error_on_get_token(
+    config: FastJWTConfig, req_null: Request, req_error: Request
+):
     with pytest.raises(NoAuthorizationError):
         await _get_token_in_header(request=req_null, config=config)
     with pytest.raises(NoAuthorizationError):
@@ -195,4 +225,4 @@ async def test_get_token_from_headers(config: FastJWTConfig, req_null: Request):
     with pytest.raises(NoAuthorizationError):
         await _get_token_in_cookies(request=req_null, config=config)
     with pytest.raises(NoAuthorizationError):
-        await get_token_from_request(request=req_null, config=config)
+        await _get_token_in_json(request=req_error, config=config)

@@ -85,7 +85,7 @@ async def _get_token_in_json(
             if isinstance(json_token, str):
                 return RequestToken(access_token=json_token, location="json")
     except Exception:
-        ...
+        pass
     raise NoAuthorizationError(
         f"Missing '{config.JWT_JSON_ACCESS_KEY}' key in json data"
     )
