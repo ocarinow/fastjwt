@@ -244,7 +244,10 @@ class FastJWT(Generic[P, U]):
             ):
                 # The token needs to be refreshed
                 return self.create_access_token(
-                    uid=payload.uid, permissions=payload.permissions, fresh=False
+                    uid=payload.uid,
+                    permissions=payload.permissions,
+                    fresh=False,
+                    **payload.extra
                 )
             return
         except Exception as e:
