@@ -1,5 +1,6 @@
 from fastjwt.types import RequestToken
 from fastjwt.fastjwt import FastJWT
+from fastjwt.payload import JWTPayload
 from fastjwt.settings import FastJWTConfig
 from fastjwt.settings import FastJWTConfigDict
 
