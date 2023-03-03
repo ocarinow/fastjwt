@@ -57,6 +57,30 @@ def test_fastjwt_symmetric_config(symmetric_config: FastJWTConfig):
     ), "_JWT_LOCATIONS is not ['headers','cookies','query','json']"
 
 
+def test_set_token_checker(security: FastJWT):
+    token_checker = lambda string: False
+    assert (
+        security.token_blacklist_checker is None
+    ), "Token blacklist callback is already set"
+    security.set_token_checker(token_checker)
+    assert (
+        security.token_blacklist_checker == token_checker
+    ), "Token blacklist callback is not expected function"
+    assert id(security.token_blacklist_checker) == id(
+        token_checker
+    ), "Token blacklist callback is not expected function"
+
+
+def test_set_user_getter(security: FastJWT):
+    user_getter = lambda string: {"name": "User"}
+    assert security.user_getter is None, "User callback is already set"
+    security.set_user_getter(user_getter)
+    assert security.user_getter == user_getter, "User callback is not expected function"
+    assert id(security.user_getter) == id(
+        user_getter
+    ), "User callback is not expected function"
+
+
 def test_encode_jwt(security: FastJWT):
     ENCODED = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.mKeXAm2xUfIffm7p1uGiYT85Rd4deJ8zHG0omKNC5RA"
     DECODED = {"foo": "bar"}
@@ -236,3 +260,34 @@ def test_refresh_token_implicit(security: FastJWT):
     assert (
         access_payload.extra == new_payload.extra
     ), "Extra parameters were not conserved"
+
+
+def test_verify_token(security: FastJWT):
+    kwargs = dict(uid="userId", fresh=True, permissions=["read", "write"])
+    token = security.create_access_token(**kwargs)
+    assert security.verify_token(token), "Token is not Valid"
+    assert security.verify_token(token, require_fresh=True), "Token is not Fresh"
+
+
+def test_verify_unfresh_token(security: FastJWT):
+    kwargs = dict(uid="userId", fresh=False, permissions=["read", "write"])
+    token = security.create_access_token(**kwargs)
+
+    assert security.verify_token(token, require_fresh=True) is False, "Token is Fresh"
+
+
+def test_verify_expired_token(security: FastJWT):
+    kwargs = dict(uid="userId", fresh=True, permissions=["read", "write"])
+    token = security.create_access_token(
+        expires_delta=datetime.timedelta(minutes=-1), **kwargs
+    )
+    assert security.verify_token(token) is False, "Token is valid"
+
+
+def test_verify_blacklisted_token(security: FastJWT):
+    security.set_token_checker(lambda x: True)
+    kwargs = dict(uid="userId", fresh=True, permissions=["read", "write"])
+    token = security.create_access_token(**kwargs)
+
+    assert security.verify_token(token) is False, "Token is valid"
+    security.set_token_checker(None)
