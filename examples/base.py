@@ -116,7 +116,7 @@ def find_token_in_blocklist(token: str) -> bool:
 
 
 # Once your configuration is done you can instantiate the FastJWT object
-security: FastJWT[User, ...] = FastJWT(config=config)
+security = FastJWT(config=config, user_model=User)
 # We set our custom callbacks to the FastJWT object
 security.set_user_getter(get_user_from_db)
 security.set_token_checker(find_token_in_blocklist)
