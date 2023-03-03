@@ -35,7 +35,7 @@ U = TypeVar("U")
 JWTExecptions = (InvalidSignatureError, DecodeError, ValueError, ExpiredSignatureError)
 
 
-class FastJWT(Generic[P, U]):
+class FastJWT(Generic[U, P]):
     """_summary_
 
     Args:
@@ -45,7 +45,6 @@ class FastJWT(Generic[P, U]):
 
     def __init__(
         self,
-        *,
         config: FastJWTConfigType,
         user_model: Type[U] = dict,
         payload_model: Type[P] = JWTPayload,
@@ -62,7 +61,7 @@ class FastJWT(Generic[P, U]):
         self._user_model = user_model
 
         self.user_getter: Optional[Callable[[str], U]] = None
-        self.token_blacklist_checker: Optional[Callable[[str], bool]] = None
+        self.token_blocklist_checker: Optional[Callable[[str], bool]] = None
 
     @property
     def config(self) -> FastJWTConfig:
@@ -80,15 +79,15 @@ class FastJWT(Generic[P, U]):
         self.user_getter = callback
 
     def set_token_checker(self, callback: Callable[[str], bool]) -> None:
-        self.token_blacklist_checker = callback
+        self.token_blocklist_checker = callback
 
     def get_user_from_uid(self, uid: str) -> U:
         return self.user_getter(uid)
 
-    def is_token_blacklisted(self, token: str) -> bool:
-        if self.token_blacklist_checker is None:
+    def is_token_blocklisted(self, token: str) -> bool:
+        if self.token_blocklist_checker is None:
             return False
-        return self.token_blacklist_checker(token)
+        return self.token_blocklist_checker(token)
 
     def encode_jwt(self, payload: Dict[str, Any]) -> str:
         """Encode a payload as a JWT
@@ -144,7 +143,7 @@ class FastJWT(Generic[P, U]):
     def verify_token(self, token: str, require_fresh: bool = False) -> bool:
         """Verify if a token is genuine
 
-        Check for the decoding ,the expiry time, the token blacklist and the freshness of the token.
+        Check for the decoding ,the expiry time, the token blocklist and the freshness of the token.
 
         Args:
             token (str): Token
@@ -162,8 +161,8 @@ class FastJWT(Generic[P, U]):
             # Check if the token is still valid
             if self.config.JWT_IS_TOKEN_EXPIRABLE and self.is_payload_expired(payload):
                 return False
-            # Check if token in blacklist
-            if self.is_token_blacklisted(token):
+            # Check if token in blocklist
+            if self.is_token_blocklisted(token):
                 return False
             return True
         except JWTExecptions as e:

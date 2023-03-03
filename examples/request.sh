@@ -23,5 +23,5 @@ echo "RESPONSE: $(curl -X POST -s --oauth2-bearer $TOKEN http://0.0.0.0:8000/log
 echo "\n8. Try access a protceted route at GET http://0.0.0.0:8000/protected"
 echo "RESPONSE: $(curl -s --oauth2-bearer $TOKEN http://0.0.0.0:8000/protected)"
 
-echo "\n9. Check Blacklist at GET http://0.0.0.0:8000/blacklist"
-echo "RESPONSE: $(curl -s http://0.0.0.0:8000/blacklist)"
+echo "\n9. Check Blocklist at GET http://0.0.0.0:8000/blocklist"
+echo "RESPONSE: $(curl -s http://0.0.0.0:8000/blocklist)"

@@ -7,12 +7,12 @@ The main features showcased by this app are:
     - FastJWT Base Configuration
     - FastJWT Callbacks
         - User Callback
-        - Token Blacklist Callback
+        - Token Blocklist Callback
     - API Logic
         - Login
             - Generate an access token
         - Logout
-            - Add a token to the blacklist
+            - Add a token to the blocklist
         - Protected Routes
         - Acessing User Object in a protected route
 
@@ -64,7 +64,7 @@ DB: Dict[str, User] = {
     },
 }
 
-TOKEN_BLACKLIST = []
+TOKEN_BLOCKLIST = []
 
 # ================================================================
 # APPLICATION
@@ -102,24 +102,24 @@ def get_user_from_db(uid: str) -> User:
 
 
 # We define an accessor `(str) -> bool` that given an encoded token
-# checks if the token is blacklisted
-def find_token_in_blacklist(token: str) -> bool:
-    """Simulate the check in a blacklisted token database
+# checks if the token is blocklisted
+def find_token_in_blocklist(token: str) -> bool:
+    """Simulate the check in a blocklisted token database
 
     Args:
         token (str): Encoded token
 
     Returns:
-        bool: Whether or not the token is blacklisted
+        bool: Whether or not the token is blocklisted
     """
-    return token in TOKEN_BLACKLIST
+    return token in TOKEN_BLOCKLIST
 
 
 # Once your configuration is done you can instantiate the FastJWT object
-security: FastJWT = FastJWT(user_model=User, config=config)
+security: FastJWT[User, ...] = FastJWT(config=config)
 # We set our custom callbacks to the FastJWT object
 security.set_user_getter(get_user_from_db)
-security.set_token_checker(find_token_in_blacklist)
+security.set_token_checker(find_token_in_blocklist)
 
 
 class LoginForm(BaseModel):
@@ -132,9 +132,15 @@ def home():
     return "OK"
 
 
-@app.get("/blacklist")
-def blacklist():
-    return TOKEN_BLACKLIST
+@app.get("/blOcklist")
+def blocklist():
+    return TOKEN_BLOCKLIST
+
+
+@app.post("/test")
+def login(email: str, password: str):
+    print(email, password)
+    return {"email": email, "password": password}
 
 
 @app.post("/login")
@@ -170,8 +176,8 @@ def logout(token: RequestToken = Depends(security.get_token_from_request)):
     # Note that this method returns None if no token is provided in the request
     # This dependency does not enforce the authentication requirement
 
-    # The logic here is to blacklist the token
-    TOKEN_BLACKLIST.append(token.access_token)
+    # The logic here is to blocklist the token
+    TOKEN_BLOCKLIST.append(token.access_token)
     return "OK"
 
 
