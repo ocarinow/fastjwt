@@ -1,4 +1,5 @@
-# fastjwt
+# FastJWT
+
 FastAPI Plugin for reusable JWT Authentication Management
 
 <p style="text-align:center;">
