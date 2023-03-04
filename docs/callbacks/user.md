@@ -105,7 +105,8 @@ security.set_user_getter(get_user_from_db)
 
 @app.get("/login")
 def login():
-    return {"access_token": security.create_access_token(uid="john.doe@fastwt.com")}
+    token = security.create_access_token(uid="john.doe@fastwt.com")
+    return {"access_token": token}
 
 @app.get("/me")
 def profile(user: User = Depends(security.get_authenticated_user)):
@@ -145,7 +146,8 @@ security.set_user_getter(get_user_from_db)
 
 @app.get("/login")
 def login():
-    return {"access_token": security.create_access_token(uid="john.doe@fastwt.com")}
+    token = security.create_access_token(uid="john.doe@fastwt.com")
+    return {"access_token": token}
 
 @app.get("/me")
 def profile(user: User = Depends(security.get_authenticated_user)):
@@ -173,6 +175,60 @@ Use the `FastJWT.set_user_getter` method to define which accessor to use. Once d
         ```py
         security: FastJWT[User, ...] = FastJWT()
         ```
+
+### Access the user context
+
+Once the user callback set and defined, you can use the `FastJWT.get_authenticated_user` as a function dependency to access the `User` instance
+
+```py linenums="1" hl_lines="25-33"
+from pydantic import BaseModel
+from fastapi import FastAPI, Depends
+from fastjwt import FastJWT
+
+app = FastAPI()
+
+FAKE_DB = { # This object mockups a database
+    "john.doe@fastwt.com": {
+        "username": "jd",
+        "name": "John Doe",
+        "password": "abcd"
+    }
+}
+
+class User(BaseModel):
+    username: str
+    name: str
+
+def get_user_from_db(uid: str) -> User:
+    return FAKE_DB.get(uid)
+
+security = FastJWT(user_model=User)
+security.set_user_getter(get_user_from_db)
+
+@app.get("/login")
+def login():
+    token = security.create_access_token(uid="john.doe@fastwt.com")
+    return {"access_token": token}
+
+@app.get("/me")
+def profile(user: User = Depends(security.get_authenticated_user)):
+    # You can now access the user object
+    return user.dict()
+```
+
+=== "Login to get a token"
+
+    ```shell
+    $ curl -s http://0.0.0.0:8000/login
+     {"access_token": $TOKEN}
+    ```
+=== "Request the user profile"
+
+    ```shell
+    $ curl -s --oauth2-bearer $TOKEN http://0.0.0.0:8000/me
+     {"username": "jd", "name": "John Doe"}
+    ```
+
 
 ## Use a SQL ORM <small>(sqlalchemy)</small>
 
