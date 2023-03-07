@@ -16,6 +16,9 @@ tasks:
     desc: Run isort on all files
     cmds:
       - pre-commit run isort --all-files
+  test:
+    cmds:
+      - poetry run pytest tests/
   env:
     cmds:
       - cat .env.{{.CLI_ARGS}} > .env && echo "Activate <{{.CLI_ARGS}}> environment variables"
