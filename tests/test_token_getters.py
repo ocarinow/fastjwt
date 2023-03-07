@@ -157,6 +157,30 @@ async def test_get_token_from_headers(
 
 
 @pytest.mark.asyncio
+async def test_get_token_from_headers_without_header_type(config: FJWTConfig):
+    config.JWT_HEADER_TYPE = None
+    req = Request(
+        scope={
+            "type": "http",
+            "headers": [
+                [
+                    f"{config.JWT_HEADER_NAME.lower()}".encode(),
+                    "TOKEN".encode(),
+                ]
+            ],
+        }
+    )
+
+    request_token = await _get_token_from_headers(request=req, config=config)
+    assert request_token is not None
+    assert request_token.type == "access"
+    assert request_token.location == "headers"
+    assert request_token.token == "TOKEN"
+
+    config.JWT_HEADER_TYPE = "Bearer"
+
+
+@pytest.mark.asyncio
 async def test_get_token_from_headers_with_token_exception(config: FJWTConfig):
     req = Request(scope={"type": "http", "headers": []})
 
@@ -266,6 +290,22 @@ async def test_get_token_from_cookies_post_with_csrf_exception(
         await _get_token_from_cookies(request=req, config=config)
 
 
+@pytest.mark.asyncio
+async def test_get_token_from_cookies_post_with_missing_token_exception(
+    config: FJWTConfig,
+):
+    # Test on POST
+    req = Request(
+        scope={
+            "method": "POST",
+            "type": "http",
+            "headers": [],
+        }
+    )
+    with pytest.raises(NoAuthorizationError):
+        await _get_token_from_cookies(request=req, config=config)
+
+
 # endregion
 
 
@@ -319,6 +359,58 @@ async def test_get_token_from_json_post(
     assert request_token.token == "REFRESH_TOKEN"
 
 
+@pytest.mark.asyncio
+async def test_get_token_from_json_post_with_exception(
+    config: FJWTConfig,
+):
+    async def void_receiver():
+        return {
+            "type": "http.request",
+            "body": json.dumps({}).encode(),
+        }
+
+    # Test on POST
+    req = Request(
+        scope={
+            "method": "POST",
+            "type": "http",
+            "headers": [[b"content-type", b"application/json"]],
+        },
+        receive=void_receiver,
+    )
+
+    with pytest.raises(NoAuthorizationError):
+        await _get_token_from_json(request=req, config=config)
+
+
+@pytest.mark.asyncio
+async def test_get_token_from_json_post_with_bad_data_exception(
+    config: FJWTConfig,
+):
+    async def bad_receiver():
+        return {
+            "type": "http.request",
+            "body": json.dumps(
+                {
+                    config.JWT_JSON_KEY: lambda: 124,
+                }
+            ).encode(),
+        }
+
+    # Test on POST
+    req = Request(
+        scope={
+            "method": "POST",
+            "type": "http",
+            "headers": [[b"content-type", b"application/json"]],
+        },
+        receive=bad_receiver,
+    )
+
+    with pytest.raises(NoAuthorizationError):
+        await _get_token_from_json(request=req, config=config)
+
+
 # endregion
 
 # region Get From Request
@@ -332,6 +424,21 @@ async def test_get_token_from_request(http_request: Request, config: FJWTConfig)
     assert request_token.location == "headers"
     assert request_token.csrf is None
     assert request_token.token == "TOKEN"
+
+
+@pytest.mark.asyncio
+async def test_get_token_from_request_with_exception(config: FJWTConfig):
+    req = Request(
+        scope={
+            "method": "POST",
+            "type": "http",
+            "headers": [],
+            "query_string": {},
+        },
+        receive=request_body,
+    )
+    with pytest.raises(NoAuthorizationError):
+        await _get_token_from_request(request=req, config=config)
 
 
 @pytest.mark.asyncio

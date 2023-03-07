@@ -173,7 +173,7 @@ async def _get_token_from_json(
                 location="json",
             )
     except Exception:
-        ...
+        raise NoAuthorizationError("Token is not parsable")
     raise NoAuthorizationError("Missing token in json data")
 
 
@@ -201,7 +201,6 @@ async def _get_token_from_request(
         locations = config.JWT_TOKEN_LOCATION
 
     for location in locations:
-        print("TRY", location)
         try:
             getter = TOKEN_GETTERS[location]
             token = await getter(request, config=config, refresh=refresh)
@@ -212,5 +211,4 @@ async def _get_token_from_request(
 
     if errors:
         raise NoAuthorizationError(*(str(err) for err in errors))
-    print(locations)
     raise NoAuthorizationError(f"No token found in request from '{locations}'")
