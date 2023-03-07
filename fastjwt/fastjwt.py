@@ -98,14 +98,11 @@ class FastJWT:
             audience=audience,
             **kwargs
         )
-        print("DECODED PAYLOAD", payload)
         token = payload.encode(
             key=self.config.PRIVATE_KEY,
             algorithm=self.config.JWT_ALGORITHM,
             headers=headers,
         )
-
-        print("DECODED TOKEN", self._decode_token(token, verify=False))
 
         return token
 
@@ -132,7 +129,6 @@ class FastJWT:
         verify_fresh: bool = False,
         verify_csrf: bool = True,
     ) -> TokenPayload:
-        print("TOKEN FROM REQUEST", token)
         return token.verify(
             key=self.config.PUBLIC_KEY,
             algorithms=[self.config.JWT_ALGORITHM],
