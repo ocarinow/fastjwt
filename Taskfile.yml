@@ -11,11 +11,14 @@ tasks:
   lock:
     desc: Lock the dependencies
     cmds:
-      - poetry export --without-hashes -f requirements.txt --output requirements.txt
+      - poetry export --with dev --without-hashes -f requirements.txt --output requirements.txt 
   isort:
     desc: Run isort on all files
     cmds:
       - pre-commit run isort --all-files
+  test:
+    cmds:
+      - poetry run pytest tests/
   env:
     cmds:
       - cat .env.{{.CLI_ARGS}} > .env && echo "Activate <{{.CLI_ARGS}}> environment variables"

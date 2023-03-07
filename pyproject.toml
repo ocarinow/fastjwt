@@ -8,6 +8,9 @@ repository = "https://github.com/ocarinow/fastjwt"
 keywords = ["fastapi", "jwt", "JSON-Web-Token", "authentication", "security", "api"]
 license = "MIT"
 readme = "README.md"
+packages = [
+    { include = "fastjwt/"}
+]
 
 [tool.poetry.dependencies]
 python = ">=3.9"
@@ -24,10 +27,31 @@ flake8 = "^6.0.0"
 isort = "^5.12.0"
 python-semantic-release = "^7.33.2"
 dateparser = "^1.1.7"
+pytest = "^7.2.2"
+pytest-cov = "^4.0.0"
+coverage = {extras = ["toml"], version = "^7.2.1"}
+pytest-asyncio = "^0.20.3"
 
 [tool.isort]
 profile = "black"
 length_sort = true
+
+[tool.coverage.run]
+branch = true
+data_file = "reports/.coverage"
+source = ['fastjwt']
+
+[tool.coverage.html]
+title = "fastjwt coverage report"
+directory = "reports/coverage"
+show_contexts = true
+
+[tool.coverage.xml]
+output = "reports/coverage.xml"
+
+[tool.pytest.ini_options]
+addopts = "--junitxml=reports/junit.xml --cov=fastjwt --cov-report=html --cov-report=xml --cov-context=test"
+filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.semantic_release]
 version_variable = [
@@ -37,7 +61,7 @@ version_toml= "pyproject.toml:tool.poetry.version"
 version_source= "commit"
 prerelease_tag= "rc"
 tag_commit = true
-branch = "main"
+branch = "release"
 upload_to_pypi = false
 upload_to_release = true
 commit_parser = "ci.commit_parser.ocarinow_commit_parser"
