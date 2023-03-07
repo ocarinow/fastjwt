@@ -17,7 +17,7 @@ from .utils import get_now_ts
 from .exceptions import JWTDecodeError
 
 RESERVED_CLAIMS = set(
-    ["fresh", "csrf", "iat", "exp", "iss", "aud", "type", "jti", "nbf"]
+    ["fresh", "csrf", "iat", "exp", "iss", "aud", "type", "jti", "nbf", "sub"]
 )
 
 
@@ -62,7 +62,7 @@ def create_token(
         jwt_claims["csrf"] = csrf
 
     if isinstance(issued, datetime.datetime):
-        jwt_claims["iat"] = expiry.timestamp()
+        jwt_claims["iat"] = issued.timestamp()
     elif isinstance(issued, (float, int)):
         jwt_claims["iat"] = issued
     else:
