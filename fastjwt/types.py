@@ -6,6 +6,7 @@ from typing import TypeVar
 from typing import Callable
 from typing import Iterable
 from typing import Optional
+from typing import Sequence
 from typing import Awaitable
 from typing import ParamSpecKwargs
 
@@ -41,8 +42,8 @@ AlgorithmType = Union[SymmetricAlgorithmType, AsymmetricAlgorithmType]
 
 # Literal Enums
 HTTPMethod = Literal["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
-HTTPMethods = Iterable[HTTPMethod]
+HTTPMethods = Sequence[HTTPMethod]
 SameSitePolicy = Literal["None", "Lax", "Strict"]
 TokenType = Literal["access", "refresh"]
 TokenLocation = Literal["headers", "cookies", "json", "query"]
-TokenLocations = Iterable[TokenLocation]
+TokenLocations = Sequence[TokenLocation]

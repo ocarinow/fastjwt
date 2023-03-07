@@ -11,6 +11,7 @@ from .types import StrOrIter
 from .types import HTTPMethods
 from .types import AlgorithmType
 from .types import SameSitePolicy
+from .types import TokenLocations
 from .exceptions import BadConfigurationError
 
 
@@ -33,7 +34,7 @@ class FJWTConfig(BaseSettings):
     JWT_PUBLIC_KEY: Optional[str] = None
     JWT_REFRESH_TOKEN_EXPIRES: Optional[timedelta] = timedelta(minutes=15)
     JWT_SECRET_KEY: Optional[str] = None
-    JWT_TOKEN_LOCATION: StrOrIter = Field(default_factory=lambda: ["headers"])
+    JWT_TOKEN_LOCATION: TokenLocations = Field(["headers"])
     # Header Options
     JWT_HEADER_NAME: str = "Authorization"
     JWT_HEADER_TYPE: str = "Bearer"
