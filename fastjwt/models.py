@@ -40,7 +40,7 @@ class TokenPayload(BaseModel):
     exp: Optional[Union[Numeric, DateTimeExpression]] = None
     nbf: Optional[Union[Numeric, DateTimeExpression]] = None
     iat: Optional[Union[Numeric, DateTimeExpression]] = Field(
-        default_factory=get_now_ts
+        default_factory=lambda: int(get_now_ts())
     )
     type: Optional[str] = None
     csrf: Optional[str] = None
