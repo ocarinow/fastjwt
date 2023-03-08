@@ -2,12 +2,12 @@ import datetime
 from typing import Any
 from typing import Dict
 from typing import Union
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 
 import jwt
 
-from .types import StrOrIter
+from .types import StrOrSeq
 from .types import TokenType
 from .types import AlgorithmType
 from .types import DateTimeExpression
@@ -32,12 +32,37 @@ def create_token(
     csrf: Union[str, bool] = True,
     algorithm: AlgorithmType = "HS256",
     headers: Optional[Dict[str, Any]] = None,
-    audience: Optional[StrOrIter] = None,
+    audience: Optional[StrOrSeq] = None,
     issuer: Optional[str] = None,
     additional_data: Optional[Dict[str, Any]] = None,
     not_before: Optional[Union[int, DateTimeExpression]] = None,
     ignore_errors: bool = True,
 ) -> str:
+    """Encode a token
+
+    Args:
+        uid (str): The unique identifier to generate a token for
+        key (str): secret key for token encoding
+        type (TokenType): Token type
+        jti (Optional[str], optional): JWT unique identifier. Defaults to None.
+        expiry (Optional[DateTimeExpression], optional): Expiration time claim. Defaults to None.
+        issued (Optional[DateTimeExpression], optional): Issued at claim. Defaults to None.
+        fresh (bool, optional): Token freshness. Defaults to False.
+        csrf (Union[str, bool], optional): CSRF Token. Defaults to True.
+        algorithm (AlgorithmType, optional): Algorithm to use to encode token. Defaults to "HS256".
+        headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
+        audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
+        issuer (Optional[str], optional): Issuer claim. Defaults to None.
+        additional_data (Optional[Dict[str, Any]], optional): Custom claims. Defaults to None.
+        not_before (Optional[Union[int, DateTimeExpression]], optional): Not before claim. Defaults to None.
+        ignore_errors (bool, optional): Ignore errors from custom claims validation. Defaults to True.
+
+    Raises:
+        ValueError: Some custom claim tries to override standard JWT claims
+
+    Returns:
+        str: encoded token
+    """
     now = get_now()
 
     # Filter additional data to remove JWT claims
@@ -95,11 +120,31 @@ def create_token(
 def decode_token(
     token: str,
     key: str,
-    algorithms: Iterable[AlgorithmType] = ["HS256"],
-    audience: Optional[StrOrIter] = None,
+    algorithms: Sequence[AlgorithmType] = ["HS256"],
+    audience: Optional[StrOrSeq] = None,
     issuer: Optional[str] = None,
     verify: bool = True,
 ) -> Dict[str, Any]:
+    """Decode a token
+
+    Args:
+        token (str): Token to decode
+        key (str): secret key for token decoding
+        algorithms (Sequence[AlgorithmType], optional): Algorithms to use for decoding. Defaults to ["HS256"].
+        audience (Optional[StrOrSeq], optional): Audiences to verify. Defaults to None.
+        issuer (Optional[str], optional): Issuer to verify. Defaults to None.
+        verify (bool, optional): Enable validation. Defaults to True.
+
+    Raises:
+        JWTDecodeError: The token decoding was not possible.
+            Mostly due to verification error.
+            Expiration
+            Audience/Issuer not verified
+            ...
+
+    Returns:
+        Dict[str, Any]: The decoded token
+    """
     try:
         return jwt.decode(
             jwt=token,

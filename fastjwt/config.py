@@ -1,5 +1,5 @@
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 from datetime import timedelta
 
 from pydantic import Field
@@ -7,7 +7,7 @@ from pydantic import BaseSettings
 from jwt.algorithms import requires_cryptography
 from jwt.algorithms import get_default_algorithms
 
-from .types import StrOrIter
+from .types import StrOrSeq
 from .types import HTTPMethods
 from .types import AlgorithmType
 from .types import SameSitePolicy
@@ -16,16 +16,18 @@ from .exceptions import BadConfigurationError
 
 
 class FJWTConfig(BaseSettings):
+    """FastJWT Base Configuration Object"""
+
     # General Options
     JWT_ACCESS_TOKEN_EXPIRES: Optional[timedelta] = timedelta(minutes=15)
     JWT_ALGORITHM: AlgorithmType = "HS256"
-    JWT_DECODE_ALGORITHMS: Iterable[AlgorithmType] = Field(
+    JWT_DECODE_ALGORITHMS: Sequence[AlgorithmType] = Field(
         default_factory=lambda: ["HS256"]
     )
-    JWT_DECODE_AUDIENCE: Optional[StrOrIter] = None
+    JWT_DECODE_AUDIENCE: Optional[StrOrSeq] = None
     JWT_DECODE_ISSUER: Optional[str] = None
     JWT_DECODE_LEEWAY: Optional[int] = 0
-    JWT_ENCODE_AUDIENCE: Optional[StrOrIter] = None
+    JWT_ENCODE_AUDIENCE: Optional[StrOrSeq] = None
     JWT_ENCODE_ISSUER: Optional[str] = None
     JWT_ENCODE_NBF: bool = True
     JWT_ERROR_MESSAGE_KEY: str = "msg"
@@ -71,6 +73,11 @@ class FJWTConfig(BaseSettings):
 
     @property
     def is_algo_symmetric(self) -> bool:
+        """Check if the JWT_ALGORITHM is a symmetric encryption algorithm
+
+        Returns:
+            bool: Whether or not the algorithm is symmetric
+        """
         return (
             self.JWT_ALGORITHM in get_default_algorithms()
             and self.JWT_ALGORITHM not in requires_cryptography
@@ -78,6 +85,11 @@ class FJWTConfig(BaseSettings):
 
     @property
     def is_algo_asymmetric(self) -> bool:
+        """Check if the JWT_ALGORITHM is an asymmetric encryption algorithm
+
+        Returns:
+            bool: Whether or not the algorithm is asymmetric
+        """
         return (
             self.JWT_ALGORITHM in get_default_algorithms()
             and self.JWT_ALGORITHM in requires_cryptography
@@ -101,12 +113,30 @@ class FJWTConfig(BaseSettings):
         return key
 
     def has_location(self, location: str) -> bool:
+        """Check if a given token location is allowed by the configuration
+
+        Args:
+            location (str): Token location
+
+        Returns:
+            bool: Whether or not the location is contained in JWT_TOKEN_LOCATION
+        """
         return location in self.JWT_TOKEN_LOCATION
 
     @property
     def PRIVATE_KEY(self) -> str:
+        """Private key to encode token
+
+        Returns:
+            str: Private key
+        """
         return self._get_key(self.JWT_PRIVATE_KEY)
 
     @property
     def PUBLIC_KEY(self) -> str:
+        """Public key to decode token
+
+        Returns:
+            str: Public key
+        """
         return self._get_key(self.JWT_PUBLIC_KEY)

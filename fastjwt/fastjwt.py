@@ -3,12 +3,11 @@ from typing import Dict
 from typing import Optional
 from functools import partial
 
-from fastapi import Depends
 from fastapi import Request
 from fastapi import Response
 
 from .core import _get_token_from_request
-from .types import StrOrIter
+from .types import StrOrSeq
 from .types import TokenLocations
 from .types import DateTimeExpression
 from .utils import get_uuid
@@ -25,14 +24,35 @@ class FastJWTDeps:
 
 
 class FastJWT:
+    """The base FastJWT object
+
+    TODO
+
+    """
+
     def __init__(self, config: FJWTConfig = FJWTConfig()) -> None:
+        """see help(FastJWT)
+
+        Args:
+            config (FJWTConfig, optional): The configuration object to use. Defaults to FJWTConfig().
+        """
         self._config = config
 
     def load_config(self, config: FJWTConfig) -> None:
+        """Loads a FJWTConfig as the new configuration
+
+        Args:
+            config (FJWTConfig): Configuration to load
+        """
         self._config = config
 
     @property
     def config(self) -> FJWTConfig:
+        """FastJWT Configuration getter
+
+        Returns:
+            FJWTConfig: Configuration BaseSettings
+        """
         return self._config
 
     def _create_payload(
@@ -42,7 +62,7 @@ class FastJWT:
         fresh: bool = False,
         expiry: Optional[DateTimeExpression] = None,
         data: Optional[Dict[str, Any]] = None,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         **kwargs
     ) -> TokenPayload:
         # Handle additional data
@@ -86,7 +106,7 @@ class FastJWT:
         headers: Optional[Dict[str, Any]] = None,
         expiry: Optional[DateTimeExpression] = None,
         data: Optional[Dict[str, Any]] = None,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         **kwargs
     ) -> str:
         payload = self._create_payload(
@@ -110,7 +130,7 @@ class FastJWT:
         self,
         token: str,
         verify: bool = True,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         issuer: Optional[str] = None,
     ) -> TokenPayload:
         return TokenPayload.decode(
@@ -129,6 +149,17 @@ class FastJWT:
         verify_fresh: bool = False,
         verify_csrf: bool = True,
     ) -> TokenPayload:
+        """Verify a request token
+
+        Args:
+            token (RequestToken): RequestToken instance
+            verify_type (bool, optional): Apply token type verification. Defaults to True.
+            verify_fresh (bool, optional): Apply token freshness verification. Defaults to False.
+            verify_csrf (bool, optional): Apply token CSRF verification. Defaults to True.
+
+        Returns:
+            TokenPayload: _description_
+        """
         return token.verify(
             key=self.config.PUBLIC_KEY,
             algorithms=[self.config.JWT_ALGORITHM],
@@ -144,10 +175,23 @@ class FastJWT:
         headers: Optional[Dict[str, Any]] = None,
         expiry: Optional[DateTimeExpression] = None,
         data: Optional[Dict[str, Any]] = None,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         *args,
         **kwargs
     ) -> str:
+        """Generate an Access Token
+
+        Args:
+            uid (str): Unique identifier to generate token for
+            fresh (bool, optional): Generate fresh token. Defaults to False.
+            headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
+            expiry (Optional[DateTimeExpression], optional): Use a user defined expiry claim. Defaults to None.
+            data (Optional[Dict[str, Any]], optional): Additional data to store in token. Defaults to None.
+            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
+
+        Returns:
+            str: Access Token
+        """
         return self._create_token(
             uid=uid,
             type="access",
@@ -164,10 +208,22 @@ class FastJWT:
         headers: Optional[Dict[str, Any]] = None,
         expiry: Optional[DateTimeExpression] = None,
         data: Optional[Dict[str, Any]] = None,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         *args,
         **kwargs
     ) -> str:
+        """Generate a Refresh Token
+
+        Args:
+            uid (str): Unique identifier to generate token for
+            headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
+            expiry (Optional[DateTimeExpression], optional): Use a user defined expiry claim. Defaults to None.
+            data (Optional[Dict[str, Any]], optional): Additional data to store in token. Defaults to None.
+            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
+
+        Returns:
+            str: Refresh Token
+        """
         return self._create_token(
             uid=uid,
             type="refresh",
@@ -259,6 +315,13 @@ class FastJWT:
         response: Response,
         max_age: Optional[int] = None,
     ) -> None:
+        """Add 'Set-Cookie' for access token in response header
+
+        Args:
+            token (str): Access token
+            response (Response): response to set cookie on
+            max_age (Optional[int], optional): Max Age cookie paramater. Defaults to None.
+        """
         self._set_cookies(
             token=token, type="access", response=response, max_age=max_age
         )
@@ -269,6 +332,13 @@ class FastJWT:
         response: Response,
         max_age: Optional[int] = None,
     ) -> None:
+        """Add 'Set-Cookie' for refresh token in response header
+
+        Args:
+            token (str): Refresh token
+            response (Response): response to set cookie on
+            max_age (Optional[int], optional): Max Age cookie paramater. Defaults to None.
+        """
         self._set_cookies(
             token=token, type="refresh", response=response, max_age=max_age
         )
@@ -277,15 +347,30 @@ class FastJWT:
         self,
         response: Response,
     ) -> None:
+        """Remove 'Set-Cookie' for access token in response header
+
+        Args:
+            response (Response): response to remove cooke from
+        """
         self._unset_cookies("access", response=response)
 
     def unset_refresh_cookies(
         self,
         response: Response,
     ) -> None:
+        """Remove 'Set-Cookie' for refresh token in response header
+
+        Args:
+            response (Response): response to remove cooke from
+        """
         self._unset_cookies("refresh", response=response)
 
     def unset_cookies(self, response: Response) -> None:
+        """Remove 'Set-Cookie' for tokens from response headers
+
+        Args:
+            response (Response): response to remove token cookies from
+        """
         self.unset_access_cookies(response)
         self.unset_refresh_cookies(response)
 
@@ -339,9 +424,25 @@ class FastJWT:
             raise e
 
     async def get_access_token_from_request(self, request: Request) -> RequestToken:
+        """Dependency to retrieve access token from request
+
+        Args:
+            request (Request): Request to retrieve access token from
+
+        Returns:
+            RequestToken: Request Token instance for 'access' token type
+        """
         return await self._get_token_from_request(request)
 
     async def get_refresh_token_from_request(self, request: Request) -> RequestToken:
+        """Dependency to retrieve refresh token from request
+
+        Args:
+            request (Request): Request to retrieve refresh token from
+
+        Returns:
+            RequestToken: Request Token instance for 'refresh' token type
+        """
         return await self._get_token_from_request(request, refresh=True)
 
     async def _auth_required(
@@ -351,7 +452,7 @@ class FastJWT:
         verify_type: bool = True,
         verify_fresh: bool = False,
         verify_csrf: Optional[bool] = None,
-    ) -> None:
+    ) -> TokenPayload:
         if type == "access":
             method = self.get_access_token_from_request
         elif type == "refresh":
@@ -380,7 +481,18 @@ class FastJWT:
         verify_type: bool = True,
         verify_fresh: bool = False,
         verify_csrf: Optional[bool] = None,
-    ) -> None:
+    ) -> TokenPayload:
+        """Dependency to enforce valid token availability in request
+
+        Args:
+            type (str, optional): Require a given token type. Defaults to "access".
+            verify_type (bool, optional): Apply type verification. Defaults to True.
+            verify_fresh (bool, optional): Require token freshness. Defaults to False.
+            verify_csrf (Optional[bool], optional): Enable CSRF verification. Defaults to None.
+
+        Returns:
+            TokenPayload: Valid token Payload retrieved
+        """
         return partial(
             self._auth_required,
             type=type,

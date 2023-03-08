@@ -4,13 +4,14 @@ from typing import List
 from typing import Callable
 from typing import Optional
 from typing import Awaitable
-from typing import ParamSpecKwargs
 
-from fastapi import Depends
+try:
+    from typing import ParamSpecKwargs
+except Exception:
+    from typing_extensions import ParamSpecKwargs
+
 from fastapi import Request
-from fastapi import Response
 
-from .types import HTTPMethods
 from .types import TokenLocation
 from .types import TokenLocations
 from .config import FJWTConfig
