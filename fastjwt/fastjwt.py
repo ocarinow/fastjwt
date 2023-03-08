@@ -3,7 +3,6 @@ from typing import Dict
 from typing import Optional
 from functools import partial
 
-from fastapi import Depends
 from fastapi import Request
 from fastapi import Response
 

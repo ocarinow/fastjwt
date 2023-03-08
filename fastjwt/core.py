@@ -6,11 +6,8 @@ from typing import Optional
 from typing import Awaitable
 from typing import ParamSpecKwargs
 
-from fastapi import Depends
 from fastapi import Request
-from fastapi import Response
 
-from .types import HTTPMethods
 from .types import TokenLocation
 from .types import TokenLocations
 from .config import FJWTConfig
