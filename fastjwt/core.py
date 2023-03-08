@@ -4,7 +4,11 @@ from typing import List
 from typing import Callable
 from typing import Optional
 from typing import Awaitable
-from typing import ParamSpecKwargs
+
+try:
+    from typing import ParamSpecKwargs
+except Exception:
+    from typing_extensions import ParamSpecKwargs
 
 from fastapi import Request
 
