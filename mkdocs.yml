@@ -1,0 +1,65 @@
+site_name: FastJWT
+site_description: FastAPI Plugin for reusable JWT Authentication Management
+repo_name: ocarinow/fastjwt
+repo_url: https://github.com/ocarinow/fastjwt
+edit_uri: edit/main/docs/
+theme:
+  name: material
+  features:
+    - navigation.path
+    - navigation.tracking
+  palette:
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      media: "(prefers-color-scheme: dark)"
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.tabbed:
+      alternate_style: true 
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - abbr
+  - admonition
+  - pymdownx.details
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+nav:
+  - Overview: index.md
+  - Get Started: 
+    - get-started/install.md
+    - get-started/tutorial.md
+    - get-started/payload.md
+    - get-started/refresh.md
+  - Callbacks:
+    - callbacks/user.md
+    - callbacks/token.md
+  - JWT Locations: locations.md
+  - Configuration: config.md
+    
+extra:
+  generator: true
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/ocarinow/fastjwt
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/wbenbihi
+    - icon: fontawesome/solid/globe
+      link: https://ocarinow.com
