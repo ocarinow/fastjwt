@@ -16,6 +16,7 @@ packages = [
 python = ">=3.9"
 pydantic = "^1.10.5"
 pyjwt = {extras = ["crypto"], version = "^2.6.0"}
+typing-extensions = {version = "^4.5.0", python = "<=3.9"}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -27,10 +28,33 @@ flake8 = "^6.0.0"
 isort = "^5.12.0"
 python-semantic-release = "^7.33.2"
 dateparser = "^1.1.7"
+pytest = "^7.2.2"
+pytest-cov = "^4.0.0"
+coverage = {extras = ["toml"], version = "^7.2.1"}
+pytest-asyncio = "^0.20.3"
+genbadge = {extras = ["all"], version = "^1.1.0"}
+docstr-coverage = "^2.2.0"
 
 [tool.isort]
 profile = "black"
 length_sort = true
+
+[tool.coverage.run]
+branch = true
+data_file = "reports/.coverage"
+source = ['fastjwt']
+
+[tool.coverage.html]
+title = "fastjwt coverage report"
+directory = "reports/coverage"
+show_contexts = true
+
+[tool.coverage.xml]
+output = "reports/coverage.xml"
+
+[tool.pytest.ini_options]
+addopts = "--junitxml=reports/junit.xml --cov=fastjwt --cov-report=html --cov-report=xml --cov-context=test"
+filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.semantic_release]
 version_variable = [
