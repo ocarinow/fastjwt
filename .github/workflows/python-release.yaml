@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - release
+      - main
 
 jobs:
   beautify:
@@ -19,13 +19,21 @@ jobs:
         with:
           python-version: 3.11
 
+      - uses: snok/install-poetry@v1
+        name: Set up Poetry for ${{ matrix.python-version }}
+        with:
+          version: 1.3.2
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          poetry install --no-interaction --no-root --with dev
+          # pip install --upgrade pip
+          # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Commit and push changes
         uses: github-actions-x/commit@v2.9
