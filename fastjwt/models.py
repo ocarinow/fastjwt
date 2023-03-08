@@ -3,8 +3,8 @@ from hmac import compare_digest
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 
 from pydantic import Extra
 from pydantic import Field
@@ -31,7 +31,7 @@ from .exceptions import FreshTokenRequiredError
 
 
 class TokenPayload(BaseModel):
-    """_summary_"""
+    """JWT Payload base model"""
 
     jti: Optional[str] = Field(default_factory=get_uuid)
     iss: Optional[str] = None
@@ -51,18 +51,26 @@ class TokenPayload(BaseModel):
         extra = Extra.allow
 
     @property
-    def additional_fields(self) -> set[str]:
+    def _additional_fields(self) -> set[str]:
         return set(self.__dict__) - set(self.__fields__)
 
     @validator("exp", "nbf", always=True)
-    def set_default_ts(cls, value):
+    def _set_default_ts(cls, value):
         if isinstance(value, datetime.datetime):
             return value.timestamp()
         elif isinstance(value, datetime.timedelta):
             return (get_now() + value).timestamp()
         return value
 
-    def has_scopes(self, *scopes: Iterable[str]) -> bool:
+    def has_scopes(self, *scopes: Sequence[str]) -> bool:
+        """Checks if a given scope is contained within TokenPayload scopes
+
+        Args:
+            *scopes (Sequence[str]): scopes to verify
+
+        Returns:
+            bool: Whether the scopes are contained in the payload scopes
+        """
         return all([s in self.scopes for s in scopes])
 
     def encode(
@@ -72,7 +80,19 @@ class TokenPayload(BaseModel):
         ignore_errors: bool = True,
         headers: Optional[Dict[str, Any]] = None,
     ) -> str:
-        # TODO
+        """Encode the payload
+
+        Args:
+            key (str): Secret key to encode the payload
+            algorithm (str): Algorithm to use to encode the payload
+            ignore_errors (bool, optional): Ignore validation errors. Defaults to True.
+            headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
+
+        Returns:
+            str: encoded token
+        """
+        # TODO Handle Headers
+        # TODO Handle Extra fields
         return create_token(
             key=key,
             algorithm=algorithm,
@@ -95,11 +115,24 @@ class TokenPayload(BaseModel):
         cls,
         token: str,
         key: str,
-        algorithms: Iterable[AlgorithmType] = ["HS256"],
+        algorithms: Sequence[AlgorithmType] = ["HS256"],
         audience: Optional[StrOrIter] = None,
         issuer: Optional[str] = None,
         verify: bool = True,
     ) -> "TokenPayload":
+        """Given a token returns the associated JWT payload
+
+        Args:
+            token (str): Token to decode
+            key (str): Secret to decode the token
+            algorithms (Sequence[AlgorithmType], optional): Algorithms to use to decode the token. Defaults to ["HS256"].
+            audience (Optional[StrOrIter], optional): Audience to verify. Defaults to None.
+            issuer (Optional[str], optional): Issuer to verify. Defaults to None.
+            verify (bool, optional): Enable verification. Defaults to True.
+
+        Returns:
+            TokenPayload: The decoded JWT payload
+        """
         payload = decode_token(
             token=token,
             key=key,
@@ -112,6 +145,15 @@ class TokenPayload(BaseModel):
 
 
 class RequestToken(BaseModel):
+    """Base model for token data retrieved from requests
+
+    Notes:
+        token (Optional[str]): The token retrieved from the request
+        csrf (Optional[str]): CSRF Value in request if detailed
+        type (TokenType): Type of token.
+        location (TokenLocation): Where the token was found in request
+    """
+
     token: Optional[str] = None
     csrf: Optional[str] = None
     type: TokenType = "access"
@@ -120,7 +162,7 @@ class RequestToken(BaseModel):
     def verify(
         self,
         key: str,
-        algorithms: Iterable[AlgorithmType] = ["HS256"],
+        algorithms: Sequence[AlgorithmType] = ["HS256"],
         audience: Optional[StrOrIter] = None,
         issuer: Optional[str] = None,
         verify_jwt: bool = True,
@@ -128,6 +170,29 @@ class RequestToken(BaseModel):
         verify_csrf: bool = True,
         verify_fresh: bool = False,
     ) -> TokenPayload:
+        """Verify a RequestToken
+
+        Args:
+            key (str): Secret to decode the token
+            algorithms (Sequence[AlgorithmType], optional): Algorithms to use to decode the token. Defaults to ["HS256"].
+            audience (Optional[StrOrIter], optional): Audience claim to verify. Defaults to None.
+            issuer (Optional[str], optional): Issuer claim to verify. Defaults to None.
+            verify_jwt (bool, optional): Enable base JWT verification. Defaults to True.
+            verify_type (bool, optional): Enable token type verification. Defaults to True.
+            verify_csrf (bool, optional): Enable CSRF verification. Defaults to True.
+            verify_fresh (bool, optional): Enable token freshness verification. Defaults to False.
+
+        Raises:
+            JWTDecodeError: Error while decoding the token
+            JWTDecodeError: The base JWT verification step has failed
+            FreshTokenRequiredError: The token is not fresh
+            CSRFError: A CSRF token is missing in the request
+            CSRFError: No CSRF claim is contained in the token
+            CSRFError: CSRF double submit does not match
+
+        Returns:
+            TokenPayload: The payload encoded in the token
+        """
         # JWT Base Verification
         try:
             decoded_token = decode_token(

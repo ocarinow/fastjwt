@@ -38,6 +38,31 @@ def create_token(
     not_before: Optional[Union[int, DateTimeExpression]] = None,
     ignore_errors: bool = True,
 ) -> str:
+    """Encode a token
+
+    Args:
+        uid (str): The unique identifier to generate a token for
+        key (str): secret key for token encoding
+        type (TokenType): Token type
+        jti (Optional[str], optional): JWT unique identifier. Defaults to None.
+        expiry (Optional[DateTimeExpression], optional): Expiration time claim. Defaults to None.
+        issued (Optional[DateTimeExpression], optional): Issued at claim. Defaults to None.
+        fresh (bool, optional): Token freshness. Defaults to False.
+        csrf (Union[str, bool], optional): CSRF Token. Defaults to True.
+        algorithm (AlgorithmType, optional): Algorithm to use to encode token. Defaults to "HS256".
+        headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
+        audience (Optional[StrOrIter], optional): Audience claim. Defaults to None.
+        issuer (Optional[str], optional): Issuer claim. Defaults to None.
+        additional_data (Optional[Dict[str, Any]], optional): Custom claims. Defaults to None.
+        not_before (Optional[Union[int, DateTimeExpression]], optional): Not before claim. Defaults to None.
+        ignore_errors (bool, optional): Ignore errors from custom claims validation. Defaults to True.
+
+    Raises:
+        ValueError: Some custom claim tries to override standard JWT claims
+
+    Returns:
+        str: encoded token
+    """
     now = get_now()
 
     # Filter additional data to remove JWT claims
@@ -100,6 +125,26 @@ def decode_token(
     issuer: Optional[str] = None,
     verify: bool = True,
 ) -> Dict[str, Any]:
+    """Decode a token
+
+    Args:
+        token (str): Token to decode
+        key (str): secret key for token decoding
+        algorithms (Iterable[AlgorithmType], optional): Algorithms to use for decoding. Defaults to ["HS256"].
+        audience (Optional[StrOrIter], optional): Audiences to verify. Defaults to None.
+        issuer (Optional[str], optional): Issuer to verify. Defaults to None.
+        verify (bool, optional): Enable validation. Defaults to True.
+
+    Raises:
+        JWTDecodeError: The token decoding was not possible.
+            Mostly due to verification error.
+            Expiration
+            Audience/Issuer not verified
+            ...
+
+    Returns:
+        Dict[str, Any]: The decoded token
+    """
     try:
         return jwt.decode(
             jwt=token,
