@@ -65,15 +65,16 @@ version_toml= "pyproject.toml:tool.poetry.version"
 version_source= "commit"
 prerelease_tag= "rc"
 tag_commit = true
-branch = "release"
-upload_to_pypi = false
+branch = "main"
+upload_to_repository = false
 upload_to_release = true
 commit_parser = "ci.commit_parser.ocarinow_commit_parser"
 build_command = "pip install poetry && poetry build"
 changelog_file="CHANGELOG.md"
 changelog_placeholder="<!--next-version-placeholder-->"
-# pre_commit_command = "pip install -r requirements.txt && bash ci/pre_commit_command.sh"
-# include_additional_files="reports/flake8-badge.svg,reports/tests-badge.svg,reports/coverage-badge.svg,reports/docstr-badge.svg"
+REPOSITORY_USERNAME="__token__"
+pre_commit_command = "bash ci/pre_commit_command.sh"
+include_additional_files="reports/flake8-badge.svg,reports/tests-badge.svg,reports/coverage-badge.svg,reports/docstr-badge.svg"
 
 [build-system]
 requires = ["poetry-core"]
