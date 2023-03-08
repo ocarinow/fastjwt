@@ -16,7 +16,7 @@ from .token import create_token
 from .token import decode_token
 from .types import Union
 from .types import Numeric
-from .types import StrOrIter
+from .types import StrOrSeq
 from .types import TokenType
 from .types import AlgorithmType
 from .types import TokenLocation
@@ -116,7 +116,7 @@ class TokenPayload(BaseModel):
         token: str,
         key: str,
         algorithms: Sequence[AlgorithmType] = ["HS256"],
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         issuer: Optional[str] = None,
         verify: bool = True,
     ) -> "TokenPayload":
@@ -126,7 +126,7 @@ class TokenPayload(BaseModel):
             token (str): Token to decode
             key (str): Secret to decode the token
             algorithms (Sequence[AlgorithmType], optional): Algorithms to use to decode the token. Defaults to ["HS256"].
-            audience (Optional[StrOrIter], optional): Audience to verify. Defaults to None.
+            audience (Optional[StrOrSeq], optional): Audience to verify. Defaults to None.
             issuer (Optional[str], optional): Issuer to verify. Defaults to None.
             verify (bool, optional): Enable verification. Defaults to True.
 
@@ -163,7 +163,7 @@ class RequestToken(BaseModel):
         self,
         key: str,
         algorithms: Sequence[AlgorithmType] = ["HS256"],
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         issuer: Optional[str] = None,
         verify_jwt: bool = True,
         verify_type: bool = True,
@@ -175,7 +175,7 @@ class RequestToken(BaseModel):
         Args:
             key (str): Secret to decode the token
             algorithms (Sequence[AlgorithmType], optional): Algorithms to use to decode the token. Defaults to ["HS256"].
-            audience (Optional[StrOrIter], optional): Audience claim to verify. Defaults to None.
+            audience (Optional[StrOrSeq], optional): Audience claim to verify. Defaults to None.
             issuer (Optional[str], optional): Issuer claim to verify. Defaults to None.
             verify_jwt (bool, optional): Enable base JWT verification. Defaults to True.
             verify_type (bool, optional): Enable token type verification. Defaults to True.

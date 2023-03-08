@@ -7,7 +7,7 @@ from fastapi import Request
 from fastapi import Response
 
 from .core import _get_token_from_request
-from .types import StrOrIter
+from .types import StrOrSeq
 from .types import TokenLocations
 from .types import DateTimeExpression
 from .utils import get_uuid
@@ -62,7 +62,7 @@ class FastJWT:
         fresh: bool = False,
         expiry: Optional[DateTimeExpression] = None,
         data: Optional[Dict[str, Any]] = None,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         **kwargs
     ) -> TokenPayload:
         # Handle additional data
@@ -106,7 +106,7 @@ class FastJWT:
         headers: Optional[Dict[str, Any]] = None,
         expiry: Optional[DateTimeExpression] = None,
         data: Optional[Dict[str, Any]] = None,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         **kwargs
     ) -> str:
         payload = self._create_payload(
@@ -130,7 +130,7 @@ class FastJWT:
         self,
         token: str,
         verify: bool = True,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         issuer: Optional[str] = None,
     ) -> TokenPayload:
         return TokenPayload.decode(
@@ -175,7 +175,7 @@ class FastJWT:
         headers: Optional[Dict[str, Any]] = None,
         expiry: Optional[DateTimeExpression] = None,
         data: Optional[Dict[str, Any]] = None,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         *args,
         **kwargs
     ) -> str:
@@ -187,7 +187,7 @@ class FastJWT:
             headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
             expiry (Optional[DateTimeExpression], optional): Use a user defined expiry claim. Defaults to None.
             data (Optional[Dict[str, Any]], optional): Additional data to store in token. Defaults to None.
-            audience (Optional[StrOrIter], optional): Audience claim. Defaults to None.
+            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
 
         Returns:
             str: Access Token
@@ -208,7 +208,7 @@ class FastJWT:
         headers: Optional[Dict[str, Any]] = None,
         expiry: Optional[DateTimeExpression] = None,
         data: Optional[Dict[str, Any]] = None,
-        audience: Optional[StrOrIter] = None,
+        audience: Optional[StrOrSeq] = None,
         *args,
         **kwargs
     ) -> str:
@@ -219,7 +219,7 @@ class FastJWT:
             headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
             expiry (Optional[DateTimeExpression], optional): Use a user defined expiry claim. Defaults to None.
             data (Optional[Dict[str, Any]], optional): Additional data to store in token. Defaults to None.
-            audience (Optional[StrOrIter], optional): Audience claim. Defaults to None.
+            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
 
         Returns:
             str: Refresh Token

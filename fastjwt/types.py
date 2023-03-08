@@ -2,14 +2,13 @@ import datetime
 from typing import Union
 from typing import Literal
 from typing import TypeVar
-from typing import Iterable
 from typing import Sequence
 
 # Helper types
 T = TypeVar("T")
 Numeric = Union[float, int]
-ObjOrIter = Union[T, Iterable[T]]
-StrOrIter = ObjOrIter[str]
+ObjOrSeq = Union[T, Sequence[T]]
+StrOrSeq = ObjOrSeq[str]
 
 
 # Datetime

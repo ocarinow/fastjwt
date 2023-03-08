@@ -1,5 +1,5 @@
-from typing import Iterable
 from typing import Optional
+from typing import Sequence
 from datetime import timedelta
 
 from pydantic import Field
@@ -7,7 +7,7 @@ from pydantic import BaseSettings
 from jwt.algorithms import requires_cryptography
 from jwt.algorithms import get_default_algorithms
 
-from .types import StrOrIter
+from .types import StrOrSeq
 from .types import HTTPMethods
 from .types import AlgorithmType
 from .types import SameSitePolicy
@@ -21,13 +21,13 @@ class FJWTConfig(BaseSettings):
     # General Options
     JWT_ACCESS_TOKEN_EXPIRES: Optional[timedelta] = timedelta(minutes=15)
     JWT_ALGORITHM: AlgorithmType = "HS256"
-    JWT_DECODE_ALGORITHMS: Iterable[AlgorithmType] = Field(
+    JWT_DECODE_ALGORITHMS: Sequence[AlgorithmType] = Field(
         default_factory=lambda: ["HS256"]
     )
-    JWT_DECODE_AUDIENCE: Optional[StrOrIter] = None
+    JWT_DECODE_AUDIENCE: Optional[StrOrSeq] = None
     JWT_DECODE_ISSUER: Optional[str] = None
     JWT_DECODE_LEEWAY: Optional[int] = 0
-    JWT_ENCODE_AUDIENCE: Optional[StrOrIter] = None
+    JWT_ENCODE_AUDIENCE: Optional[StrOrSeq] = None
     JWT_ENCODE_ISSUER: Optional[str] = None
     JWT_ENCODE_NBF: bool = True
     JWT_ERROR_MESSAGE_KEY: str = "msg"
