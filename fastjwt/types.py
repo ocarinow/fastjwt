@@ -2,7 +2,15 @@ import datetime
 from typing import Union
 from typing import Literal
 from typing import TypeVar
+from typing import Callable
+from typing import Optional
 from typing import Sequence
+from typing import Awaitable
+
+try:
+    from typing import ParamSpecKwargs
+except Exception:
+    from typing_extensions import ParamSpecKwargs
 
 # Helper types
 T = TypeVar("T")
@@ -41,3 +49,7 @@ SameSitePolicy = Literal["None", "Lax", "Strict"]
 TokenType = Literal["access", "refresh"]
 TokenLocation = Literal["headers", "cookies", "json", "query"]
 TokenLocations = Sequence[TokenLocation]
+
+# Callbacks
+TokenCallback = Callable[[str, ParamSpecKwargs], bool]
+ModelCallback = Callable[[str, ParamSpecKwargs], Optional[T]]
