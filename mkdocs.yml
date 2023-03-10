@@ -23,6 +23,8 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+plugins:
+  -  mkdocstrings
 markdown_extensions:
   - pymdownx.superfences
   - attr_list
@@ -52,7 +54,12 @@ nav:
     - callbacks/user.md
     - callbacks/token.md
   - JWT Locations: locations.md
+  - Dependencies: deps.md
   - Configuration: config.md
+  - API:
+    - api/fastjwt.md
+    - api/config.md
+    - api/deps.md
     
 extra:
   generator: true

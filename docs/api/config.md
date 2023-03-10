@@ -1,0 +1,3 @@
+# FJWTConfig
+
+::: fastjwt.config.FJWTConfig
