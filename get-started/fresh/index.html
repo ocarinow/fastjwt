@@ -11,17 +11,17 @@
       
       
       
-        <link rel="prev" href="../payload/">
+        <link rel="prev" href="../refresh/">
       
       
-        <link rel="next" href="../fresh/">
+        <link rel="next" href="../../callbacks/user/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.1">
     
     
       
-        <title>Refreshing Tokens - FastJWT</title>
+        <title>Token Freshness - FastJWT</title>
       
     
     
@@ -75,7 +75,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#refreshing-tokens" class="md-skip">
+        <a href="#token-freshness" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Refreshing Tokens
+              Token Freshness
             
           </span>
         </div>
@@ -324,6 +324,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../refresh/" class="md-nav__link">
+        Refreshing Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -336,12 +350,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Refreshing Tokens
+          Token Freshness
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Refreshing Tokens
+        Token Freshness
       </a>
       
         
@@ -360,16 +374,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#implicit-refresh-with-cookies" class="md-nav__link">
-    Implicit refresh with Cookies
+  <a href="#combined-with-explicit-refresh-mechanism" class="md-nav__link">
+    Combined with explicit refresh mechanism
+  </a>
+  
+    <nav class="md-nav" aria-label="Combined with explicit refresh mechanism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-fresh-access-tokens" class="md-nav__link">
+    Create fresh access tokens
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#explicit-refresh" class="md-nav__link">
-    Explicit refresh
+        
+          <li class="md-nav__item">
+  <a href="#refreshing-tokens" class="md-nav__link">
+    Refreshing tokens
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requiring-fresh-tokens" class="md-nav__link">
+    Requiring fresh tokens
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -377,20 +411,6 @@
   
 </nav>
       
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../fresh/" class="md-nav__link">
-        Token Freshness
-      </a>
     </li>
   
 
@@ -629,16 +649,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#implicit-refresh-with-cookies" class="md-nav__link">
-    Implicit refresh with Cookies
+  <a href="#combined-with-explicit-refresh-mechanism" class="md-nav__link">
+    Combined with explicit refresh mechanism
+  </a>
+  
+    <nav class="md-nav" aria-label="Combined with explicit refresh mechanism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-fresh-access-tokens" class="md-nav__link">
+    Create fresh access tokens
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#explicit-refresh" class="md-nav__link">
-    Explicit refresh
+        
+          <li class="md-nav__item">
+  <a href="#refreshing-tokens" class="md-nav__link">
+    Refreshing tokens
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requiring-fresh-tokens" class="md-nav__link">
+    Requiring fresh tokens
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -660,15 +700,20 @@
   
 
 
-<h1 id="refreshing-tokens">Refreshing Tokens</h1>
-<p>Since JWTs have a strict <code>exp</code> Expiration Time, a long session might result in multiple logouts and <code>401 Authentication</code> errors. To avoid such bahvior, refresh tokens are used to enable the generation of additional access token without the need to log in again.</p>
-<h2 id="implicit-refresh-with-cookies">Implicit refresh with Cookies</h2>
-<div class="admonition warning">
-<p class="admonition-title">WIP</p>
-<p>This section is work in progress</p>
-</div>
-<h2 id="explicit-refresh">Explicit refresh</h2>
-<p>When your application cannot use implicit refresh because cookies are not an option <em>(mobile application, SDKs, APIs,...)</em>, you might need to declare explicitly the refresh logic on you application.</p>
+<h1 id="token-freshness">Token Freshness</h1>
+<p>Token freshness mechanisms enable additional protection for sensitive operations. 
+Fresh tokens should only be generated when the user provides credentials information on a login operation.</p>
+<p>Every time a user authenticates itself with credentials, it receives a <code>fresh</code> token. Every time, an access token is refreshed <em>(implicitly or explictly)</em> the access token generated <strong>SHOULD NOT</strong> be <code>fresh</code>.</p>
+<p>Most of  your protected endpoints should not consider the <code>fresh</code> state of the access token, but in specific application cases, the use of a <code>fresh</code> token enables an additional layer of protection by requiring the user to authenticate itself.</p>
+<p>Such operations includes but are not limited to:</p>
+<ul>
+<li>Password update</li>
+<li>User information update</li>
+<li>Privilege/Permission management</li>
+<li>...</li>
+</ul>
+<h2 id="combined-with-explicit-refresh-mechanism">Combined with explicit refresh mechanism</h2>
+<p>Let's start from the example in the previous <a href="../refresh/#explicit-refresh">Refreshing tokens</a> section.</p>
 <div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
@@ -704,7 +749,17 @@
 <span class="normal"><a href="#__codelineno-0-33">33</a></span>
 <span class="normal"><a href="#__codelineno-0-34">34</a></span>
 <span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">fastjwt</span> <span class="kn">import</span> <span class="n">FastJWT</span><span class="p">,</span> <span class="n">TokenPayload</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a>
@@ -718,55 +773,142 @@
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">)</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">LoginForm</span><span class="p">):</span>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a>    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">password</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a>        <span class="n">access_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_access_token</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a>        <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_refresh_token</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a>        <span class="k">return</span> <span class="p">{</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a>            <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span> 
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a>            <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="n">refresh_token</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="p">}</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="mi">401</span><span class="p">,</span> <span class="s2">&quot;Bad username/password&quot;</span><span class="p">)</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="c1"># We use the FastJWT.refresh_token_required method to enforce</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="c1"># the refresh token validation.</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/refresh&#39;</span><span class="p">)</span>
-</span></span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="hll"><span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span>
-</span></span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="hll">    <span class="n">refresh_payload</span><span class="p">:</span> <span class="n">TokenPayload</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="o">.</span><span class="n">refresh_token_required</span><span class="p">())</span>
-</span></span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="hll"><span class="p">):</span>
-</span></span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="hll">    <span class="n">access_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_access_token</span><span class="p">(</span><span class="n">refresh_payload</span><span class="o">.</span><span class="n">sub</span><span class="p">)</span>
-</span></span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="hll">    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">}</span>
-</span></span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/protected&#39;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="o">.</span><span class="n">access_token_required</span><span class="p">())])</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="k">def</span> <span class="nf">protected</span><span class="p">():</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="k">return</span> <span class="s2">&quot;You have access to this protected resource&quot;</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a>        <span class="n">access_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_access_token</span><span class="p">(</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a>            <span class="n">data</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> 
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a>            <span class="n">fresh</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a>        <span class="p">)</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a>        <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_refresh_token</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a>            <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span> 
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>            <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="n">refresh_token</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>        <span class="p">}</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="mi">401</span><span class="p">,</span> <span class="s2">&quot;Bad username/password&quot;</span><span class="p">)</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="c1"># We use the FastJWT.refresh_token_required method to enforce</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="c1"># the refresh token validation.</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/refresh&#39;</span><span class="p">)</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="n">refresh_payload</span><span class="p">:</span> <span class="n">TokenPayload</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="o">.</span><span class="n">refresh_token_required</span><span class="p">())</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="p">):</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="n">access_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_access_token</span><span class="p">(</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>        <span class="n">refresh_payload</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span> 
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="n">fresh</span><span class="o">=</span><span class="kc">False</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="p">)</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">}</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/protected&#39;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="o">.</span><span class="n">access_token_required</span><span class="p">())])</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="k">def</span> <span class="nf">protected</span><span class="p">():</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="k">return</span> <span class="s2">&quot;You have access to this protected resource&quot;</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/sensitive_operation&#39;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="o">.</span><span class="n">fresh_token_required</span><span class="p">())])</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="k">def</span> <span class="nf">sensitive_operation</span><span class="p">():</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="k">return</span> <span class="s2">&quot;You have access to this sensitive operation&quot;</span>
 </span></code></pre></div></td></tr></table></div>
-<p>On this example, the <code>/refresh</code> route will only look for a valid refresh token in request. Once verified, it generates a new access token to be used to extend the session. </p>
-<p>This example is a very basic implementation of an explicit refresh mechanism. On a production case you might want to retrieve the current acces token to revoke it. Hence avoiding to generate infinite valid access token.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">1. Login</label><label for="__tabbed_1_2">2. Sensitive Operation</label><label for="__tabbed_1_3">3. Refresh access token</label></div>
+<h3 id="create-fresh-access-tokens">Create fresh access tokens</h3>
+<p>To create <code>fresh</code> access token, use <code>fresh=True</code> argument in <code>FastJWT.create_access_token</code> method. </p>
+<p>On the <code>/login</code> route, we set the <code>fresh</code> argument to <code>True</code> because the token is generated after the user explicitly provided username/password combo.</p>
+<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span>
+<span class="normal"><a href="#__codelineno-1-17">17</a></span>
+<span class="normal"><a href="#__codelineno-1-18">18</a></span>
+<span class="normal"><a href="#__codelineno-1-19">19</a></span>
+<span class="normal"><a href="#__codelineno-1-20">20</a></span>
+<span class="normal"><a href="#__codelineno-1-21">21</a></span>
+<span class="normal"><a href="#__codelineno-1-22">22</a></span>
+<span class="normal"><a href="#__codelineno-1-23">23</a></span>
+<span class="normal"><a href="#__codelineno-1-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">)</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">LoginForm</span><span class="p">):</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14"></a>    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">password</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="hll">        <span class="n">access_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_access_token</span><span class="p">(</span>
+</span></span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="hll">            <span class="n">data</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> 
+</span></span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="hll">            <span class="n">fresh</span><span class="o">=</span><span class="kc">True</span>
+</span></span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="hll">        <span class="p">)</span>
+</span></span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19"></a>        <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_refresh_token</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20"></a>        <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21"></a>            <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span> 
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22"></a>            <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="n">refresh_token</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23"></a>        <span class="p">}</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24"></a>    <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="mi">401</span><span class="p">,</span> <span class="s2">&quot;Bad username/password&quot;</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="refreshing-tokens">Refreshing tokens</h3>
+<p>When refreshing tokens, you should always generate <strong>NOT</strong> <code>fresh</code> tokens.
+On the example below the <code>fresh</code> argument is set to <code>Fasle</code> explicitly, 
+the default behavior for the <code>FastJWT.create_access_token</code> is to generate a NON <code>fresh</code> token.</p>
+<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-29">29</a></span>
+<span class="normal"><a href="#__codelineno-2-30">30</a></span>
+<span class="normal"><a href="#__codelineno-2-31">31</a></span>
+<span class="normal"><a href="#__codelineno-2-32">32</a></span>
+<span class="normal"><a href="#__codelineno-2-33">33</a></span>
+<span class="normal"><a href="#__codelineno-2-34">34</a></span>
+<span class="normal"><a href="#__codelineno-2-35">35</a></span>
+<span class="normal"><a href="#__codelineno-2-36">36</a></span>
+<span class="normal"><a href="#__codelineno-2-37">37</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/refresh&#39;</span><span class="p">)</span>
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30"></a><span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span>
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31"></a>    <span class="n">refresh_payload</span><span class="p">:</span> <span class="n">TokenPayload</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="o">.</span><span class="n">refresh_token_required</span><span class="p">())</span>
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="p">):</span>
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33"></a><span class="hll">    <span class="n">access_token</span> <span class="o">=</span> <span class="n">security</span><span class="o">.</span><span class="n">create_access_token</span><span class="p">(</span>
+</span></span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34"></a><span class="hll">        <span class="n">refresh_payload</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span> 
+</span></span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35"></a><span class="hll">        <span class="n">fresh</span><span class="o">=</span><span class="kc">False</span>
+</span></span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="hll">    <span class="p">)</span>
+</span></span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="requiring-fresh-tokens">Requiring fresh tokens</h3>
+<p>The first <code>/protected</code> route acts as usual, regardless of the <code>fresh</code> token's state.</p>
+<p>At the opposite, the <code>/sensitive_operation</code> route will now require a fresh token to be executed.
+This behavior is defined by the <code>FastJWT.fresh_token_required</code> dependency</p>
+<div class="language-py highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-40">40</a></span>
+<span class="normal"><a href="#__codelineno-3-41">41</a></span>
+<span class="normal"><a href="#__codelineno-3-42">42</a></span>
+<span class="normal"><a href="#__codelineno-3-43">43</a></span>
+<span class="normal"><a href="#__codelineno-3-44">44</a></span>
+<span class="normal"><a href="#__codelineno-3-45">45</a></span>
+<span class="normal"><a href="#__codelineno-3-46">46</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-40"><a id="__codelineno-3-40" name="__codelineno-3-40"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/protected&#39;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="o">.</span><span class="n">access_token_required</span><span class="p">())])</span>
+</span><span id="__span-3-41"><a id="__codelineno-3-41" name="__codelineno-3-41"></a><span class="k">def</span> <span class="nf">protected</span><span class="p">():</span>
+</span><span id="__span-3-42"><a id="__codelineno-3-42" name="__codelineno-3-42"></a>    <span class="k">return</span> <span class="s2">&quot;You have access to this protected resource&quot;</span>
+</span><span id="__span-3-43"><a id="__codelineno-3-43" name="__codelineno-3-43"></a>
+</span><span id="__span-3-44"><a id="__codelineno-3-44" name="__codelineno-3-44"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/sensitive_operation&#39;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="o">.</span><span class="n">fresh_token_required</span><span class="p">())])</span>
+</span></span><span id="__span-3-45"><a id="__codelineno-3-45" name="__codelineno-3-45"></a><span class="hll"><span class="k">def</span> <span class="nf">sensitive_operation</span><span class="p">():</span>
+</span></span><span id="__span-3-46"><a id="__codelineno-3-46" name="__codelineno-3-46"></a><span class="hll">    <span class="k">return</span> <span class="s2">&quot;You have access to this sensitive operation&quot;</span>
+</span></span></code></pre></div></td></tr></table></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">1. Login</label><label for="__tabbed_1_2">2. Sensitive Operation</label><label for="__tabbed_1_3">3. Refresh access token</label><label for="__tabbed_1_4">4. Sensitive operation</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># We login to obtain a token</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>--json<span class="w"> </span><span class="s1">&#39;{&quot;username&quot;:&quot;test&quot;, &quot;password&quot;:&quot;test&quot;}&#39;</span><span class="w"> </span>http://0.0.0.0:8000/login
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="o">{</span><span class="s2">&quot;access_token&quot;</span>:<span class="w"> </span><span class="nv">$TOKEN</span>,<span class="w"> </span><span class="s2">&quot;refresh_token&quot;</span>:<span class="w"> </span><span class="nv">$REFRESH_TOKEN</span><span class="o">}</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># We login to obtain a fresh token</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>--json<span class="w"> </span><span class="s1">&#39;{&quot;username&quot;:&quot;test&quot;, &quot;password&quot;:&quot;test&quot;}&#39;</span><span class="w"> </span>http://0.0.0.0:8000/login
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="o">{</span><span class="s2">&quot;access_token&quot;</span>:<span class="w"> </span><span class="nv">$FRESH_TOKEN</span>,<span class="w"> </span><span class="s2">&quot;refresh_token&quot;</span>:<span class="w"> </span><span class="nv">$REFRESH_TOKEN</span><span class="o">}</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># We request the protceted route with the token</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>--oauth2-bearer<span class="w"> </span><span class="nv">$TOKEN</span><span class="w"> </span>http://0.0.0.0:8000/sensitive_operation
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="s2">&quot;You have access to this sensitive operation&quot;</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># We request the sensitive operation with the fresh token</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>--oauth2-bearer<span class="w"> </span><span class="nv">$FRESH_TOKEN</span><span class="w"> </span>http://0.0.0.0:8000/sensitive_operation
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="s2">&quot;You have access to this sensitive operation&quot;</span>
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># We refresh the access token to get a new one</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>--oauth2-bearer<span class="w"> </span><span class="nv">$REFRESH_TOKEN</span><span class="w"> </span>http://0.0.0.0:8000/refresh
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="o">{</span><span class="s2">&quot;access_token&quot;</span>:<span class="w"> </span><span class="nv">$NEW_TOKEN</span><span class="o">}</span>
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># We refresh the access token to get a new non fresh one</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>--oauth2-bearer<span class="w"> </span><span class="nv">$REFRESH_TOKEN</span><span class="w"> </span>http://0.0.0.0:8000/refresh
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="o">{</span><span class="s2">&quot;access_token&quot;</span>:<span class="w"> </span><span class="nv">$NON_FRESH_TOKEN</span><span class="o">}</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># We request the sensitive operation with the non fresh token</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>--oauth2-bearer<span class="w"> </span><span class="nv">$FRESH_TOKEN</span><span class="w"> </span>http://0.0.0.0:8000/sensitive_operation
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>Interal<span class="w"> </span>server<span class="w"> </span>error
 </span></code></pre></div>
 </div>
 </div>
 </div>
-<p>As you can see on the last step, refreshing mechanism allow to obtain new tokens without the need to authenticate again.
-Be aware this mechanism should be used caution.</p>
+<details class="note">
+<summary>Note on Internal server error</summary>
+<p>As you might notice, the step 4 results in an 500 HTTP Internal Server Error. 
+This is the expected behavior, since error handling is by default disabled on FastJWT and should be enabled or
+handled by you to avoid errors</p>
+</details>
 
 
 
