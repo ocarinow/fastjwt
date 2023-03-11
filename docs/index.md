@@ -19,11 +19,13 @@ _fastjwt_ is heavily inspired from its Flask equivalent [Flask-JWT-Extended](htt
 
 ## Features
 
-- Handles request for JWT in Cookies, Headers, Query Parameters and request Body
-- Handles Token Blocklist via custom callbacks
-- Handles User ORM via custom callbacks
-- Protected routes
-- Protected routes with fresh token/login
+- [x] Handles request for JWT in Cookies, Headers, Query Parameters and request Body
+- [ ] Handles Token Blocklist via custom callbacks
+- [ ] Handles User ORM via custom callbacks
+- [X] Protected routes
+- [X] Protected routes with fresh token/login
+- [X] Implicit/Explicit Token Refresh mechanisms
+- [ ] Partially protected routes
 
 ## Commands
 
