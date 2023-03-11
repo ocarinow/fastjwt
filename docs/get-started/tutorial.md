@@ -1,5 +1,30 @@
 # Base Usage
 
+```py linenums="1"
+from fastapi import FastAPI, Depends
+from fastjwt import FastJWT, FastJWTConfig
+
+app = FastAPI(title="My Base App")
+
+security_config = FJWTConfig()
+security_config.JWT_ALGORITHM = "HS256"
+security_config.JWT_SECRET_KEY = "SECRET_KEY"
+
+security = FastJWT(config=security_config)
+
+@app.get('/login')
+def login(email: str, password: str):
+    if email == "john.doe@fastjwt.com" and password == "abcd":
+        token = security.create_access_token(uid=email)
+        return {"access_token": token}
+    raise fastapi.HTTPException(401, detail={"message": "Bad credentials"})
+
+@app.get('/protected_endpoint', dependencies=[Depends(security.token_required())])
+def get_protected_endpoint():
+    ...
+    return "This is a protected endpoint"
+```
+
 ## Setup
 
 Let's build our first FastAPI application with FastJWT
@@ -100,7 +125,7 @@ security = FastJWT(config=security_config)
 
 To authenticate a user we create a `/login` route the usual way with FastAPI
 
-```py linenums="14"
+```py linenums="10"
 security = FastJWT(config=security_config)
 
 @app.get('/login')
@@ -132,7 +157,7 @@ The `FastJWT` object provides a `create_access_token` method that given a unique
 
 Let's work on a simple `GET` route that can only be accessed by authenticated users.
 
-```py linenums="23" hl_lines="1"
+```py linenums="19" hl_lines="1"
 @app.get('/protected_endpoint', dependencies=[Depends(security.token_required())])
 def get_protected_endpoint():
     ...
