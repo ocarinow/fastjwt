@@ -1,8 +1,11 @@
 from typing import Any
 from typing import Dict
+from typing import TypeVar
+from typing import Callable
 from typing import Optional
 from functools import partial
 
+from fastapi import Depends
 from fastapi import Request
 from fastapi import Response
 
@@ -14,28 +17,30 @@ from .utils import get_uuid
 from .config import FJWTConfig
 from .models import RequestToken
 from .models import TokenPayload
+from .callback import _CallbackHandler
 from .exceptions import NoAuthorizationError
+from .dependencies import FastJWTDeps
+
+T = TypeVar("T")
 
 
-class FastJWTDeps:
-    def __init__(self, request: Request = None, response: Response = None) -> None:
-        self._response = response
-        self._request = request
-
-
-class FastJWT:
+class FastJWT(_CallbackHandler[T]):
     """The base FastJWT object
 
     TODO
 
     """
 
-    def __init__(self, config: FJWTConfig = FJWTConfig()) -> None:
-        """see help(FastJWT)
+    def __init__(
+        self, config: FJWTConfig = FJWTConfig(), model: Optional[T] = Dict[str, Any]
+    ) -> None:
+        """FastJWT base object
 
         Args:
-            config (FJWTConfig, optional): The configuration object to use. Defaults to FJWTConfig().
+            config (FJWTConfig, optional): Configuration instance to use. Defaults to FJWTConfig().
+            model (Optional[T], optional): Model type hint. Defaults to Dict[str, Any].
         """
+        super().__init__(model)
         self._config = config
 
     def load_config(self, config: FJWTConfig) -> None:
@@ -54,6 +59,11 @@ class FastJWT:
             FJWTConfig: Configuration BaseSettings
         """
         return self._config
+
+    def get_dependency(self, request: Request, response: Response):
+        return FastJWTDeps(self, request=request, response=response)
+
+    # region Private methods
 
     def _create_payload(
         self,
@@ -141,6 +151,140 @@ class FastJWT:
             audience=audience if audience else self.config.JWT_DECODE_AUDIENCE,
             issuer=issuer if issuer else self.config.JWT_DECODE_ISSUER,
         )
+
+    def _set_cookies(
+        self,
+        token: str,
+        type: str,
+        response: Response,
+        max_age: Optional[int] = None,
+        *args,
+        **kwargs
+    ) -> None:
+        if type == "access":
+            token_key = self.config.JWT_ACCESS_COOKIE_NAME
+            token_path = self.config.JWT_ACCESS_COOKIE_PATH
+            csrf_key = self.config.JWT_ACCESS_CSRF_COOKIE_NAME
+            csrf_path = self.config.JWT_ACCESS_CSRF_COOKIE_PATH
+        elif type == "refresh":
+            token_key = self.config.JWT_REFRESH_COOKIE_NAME
+            token_path = self.config.JWT_REFRESH_COOKIE_PATH
+            csrf_key = self.config.JWT_REFRESH_CSRF_COOKIE_NAME
+            csrf_path = self.config.JWT_REFRESH_CSRF_COOKIE_PATH
+        else:
+            raise ValueError("Token type must be 'access' | 'refresh'")
+
+        # Set cookie
+        response.set_cookie(
+            key=token_key,
+            value=token,
+            path=token_path,
+            domain=self.config.JWT_COOKIE_DOMAIN,
+            samesite=self.config.JWT_COOKIE_SAMESITE,
+            secure=self.config.JWT_COOKIE_SECURE,
+            httponly=True,
+            max_age=max_age if max_age else self.config.JWT_COOKIE_MAX_AGE,
+        )
+        # Set CSRF
+        if self.config.JWT_COOKIE_CSRF_PROTECT and self.config.JWT_CSRF_IN_COOKIES:
+            response.set_cookie(
+                key=csrf_key,
+                value=self._decode_token(token=token, verify=True).csrf,
+                path=csrf_path,
+                domain=self.config.JWT_COOKIE_DOMAIN,
+                samesite=self.config.JWT_COOKIE_SAMESITE,
+                secure=self.config.JWT_COOKIE_SECURE,
+                httponly=False,
+                max_age=max_age if max_age else self.config.JWT_COOKIE_MAX_AGE,
+            )
+
+    def _unset_cookies(
+        self,
+        type: str,
+        response: Response,
+    ) -> None:
+        if type == "access":
+            token_key = self.config.JWT_ACCESS_COOKIE_NAME
+            token_path = self.config.JWT_ACCESS_COOKIE_PATH
+            csrf_key = self.config.JWT_ACCESS_CSRF_COOKIE_NAME
+            csrf_path = self.config.JWT_ACCESS_CSRF_COOKIE_PATH
+        elif type == "refresh":
+            token_key = self.config.JWT_REFRESH_COOKIE_NAME
+            token_path = self.config.JWT_REFRESH_COOKIE_PATH
+            csrf_key = self.config.JWT_REFRESH_CSRF_COOKIE_NAME
+            csrf_path = self.config.JWT_REFRESH_CSRF_COOKIE_PATH
+        else:
+            raise ValueError("Token type must be 'access' | 'refresh'")
+        # Unset cookie
+        response.delete_cookie(
+            key=token_key,
+            path=token_path,
+            domain=self.config.JWT_COOKIE_DOMAIN,
+        )
+        if self.config.JWT_COOKIE_CSRF_PROTECT and self.config.JWT_CSRF_IN_COOKIES:
+            response.delete_cookie(
+                key=csrf_key,
+                path=csrf_path,
+                domain=self.config.JWT_COOKIE_DOMAIN,
+            )
+
+    async def _get_token_from_request(
+        self,
+        request: Request,
+        locations: Optional[TokenLocations] = None,
+        refresh: bool = False,
+    ) -> RequestToken:
+        if refresh and locations is None:
+            locations = list(
+                set(self.config.JWT_TOKEN_LOCATION).intersection(["cookies", "json"])
+            )
+        elif (not refresh) and locations is None:
+            locations = list(self.config.JWT_TOKEN_LOCATION)
+        try:
+            token = await _get_token_from_request(
+                request=request,
+                refresh=refresh,
+                locations=locations,
+                config=self.config,
+            )
+            return token
+        except NoAuthorizationError as e:
+            raise e
+
+    async def _auth_required(
+        self,
+        request: Request,
+        type: str = "access",
+        verify_type: bool = True,
+        verify_fresh: bool = False,
+        verify_csrf: Optional[bool] = None,
+    ) -> TokenPayload:
+        if type == "access":
+            method = self.get_access_token_from_request
+        elif type == "refresh":
+            method = self.get_refresh_token_from_request
+        else:
+            ...
+        if verify_csrf is None:
+            print(request)
+            verify_csrf = self.config.JWT_COOKIE_CSRF_PROTECT and (
+                request.method.upper() in self.config.JWT_CSRF_METHODS
+            )
+
+        request_token = await method(
+            request=request,
+        )
+
+        return self.verify_token(
+            request_token,
+            verify_type=verify_type,
+            verify_fresh=verify_fresh,
+            verify_csrf=verify_csrf,
+        )
+
+    # endregion
+
+    # region Token methods
 
     def verify_token(
         self,
@@ -233,81 +377,9 @@ class FastJWT:
             audience=audience,
         )
 
-    def _set_cookies(
-        self,
-        token: str,
-        type: str,
-        response: Response,
-        max_age: Optional[int] = None,
-        *args,
-        **kwargs
-    ) -> None:
-        if type == "access":
-            token_key = self.config.JWT_ACCESS_COOKIE_NAME
-            token_path = self.config.JWT_ACCESS_COOKIE_PATH
-            csrf_key = self.config.JWT_ACCESS_CSRF_COOKIE_NAME
-            csrf_path = self.config.JWT_ACCESS_CSRF_COOKIE_PATH
-        elif type == "refresh":
-            token_key = self.config.JWT_REFRESH_COOKIE_NAME
-            token_path = self.config.JWT_REFRESH_COOKIE_PATH
-            csrf_key = self.config.JWT_REFRESH_CSRF_COOKIE_NAME
-            csrf_path = self.config.JWT_REFRESH_CSRF_COOKIE_PATH
-        else:
-            raise ValueError("Token type must be 'access' | 'refresh'")
+    # endregion
 
-        # Set cookie
-        response.set_cookie(
-            key=token_key,
-            value=token,
-            path=token_path,
-            domain=self.config.JWT_COOKIE_DOMAIN,
-            samesite=self.config.JWT_COOKIE_SAMESITE,
-            secure=self.config.JWT_COOKIE_SECURE,
-            httponly=True,
-            max_age=max_age if max_age else self.config.JWT_COOKIE_MAX_AGE,
-        )
-        # Set CSRF
-        if self.config.JWT_COOKIE_CSRF_PROTECT and self.config.JWT_CSRF_IN_COOKIES:
-            response.set_cookie(
-                key=csrf_key,
-                value=self._decode_token(token=token, verify=True).csrf,
-                path=csrf_path,
-                domain=self.config.JWT_COOKIE_DOMAIN,
-                samesite=self.config.JWT_COOKIE_SAMESITE,
-                secure=self.config.JWT_COOKIE_SECURE,
-                httponly=False,
-                max_age=max_age if max_age else self.config.JWT_COOKIE_MAX_AGE,
-            )
-
-    def _unset_cookies(
-        self,
-        type: str,
-        response: Response,
-    ) -> None:
-        if type == "access":
-            token_key = self.config.JWT_ACCESS_COOKIE_NAME
-            token_path = self.config.JWT_ACCESS_COOKIE_PATH
-            csrf_key = self.config.JWT_ACCESS_CSRF_COOKIE_NAME
-            csrf_path = self.config.JWT_ACCESS_CSRF_COOKIE_PATH
-        elif type == "refresh":
-            token_key = self.config.JWT_REFRESH_COOKIE_NAME
-            token_path = self.config.JWT_REFRESH_COOKIE_PATH
-            csrf_key = self.config.JWT_REFRESH_CSRF_COOKIE_NAME
-            csrf_path = self.config.JWT_REFRESH_CSRF_COOKIE_PATH
-        else:
-            raise ValueError("Token type must be 'access' | 'refresh'")
-        # Unset cookie
-        response.delete_cookie(
-            key=token_key,
-            path=token_path,
-            domain=self.config.JWT_COOKIE_DOMAIN,
-        )
-        if self.config.JWT_COOKIE_CSRF_PROTECT and self.config.JWT_CSRF_IN_COOKIES:
-            response.delete_cookie(
-                key=csrf_key,
-                path=csrf_path,
-                domain=self.config.JWT_COOKIE_DOMAIN,
-            )
+    # region Cookie methods
 
     def set_access_cookies(
         self,
@@ -374,54 +446,7 @@ class FastJWT:
         self.unset_access_cookies(response)
         self.unset_refresh_cookies(response)
 
-    async def _get_token_from_request(
-        self,
-        request: Request,
-        locations: Optional[TokenLocations] = None,
-        refresh: bool = False,
-    ) -> RequestToken:
-        if refresh and locations is None:
-            locations = list(
-                set(self.config.JWT_TOKEN_LOCATION).intersection(["cookies", "json"])
-            )
-        elif (not refresh) and locations is None:
-            locations = list(self.config.JWT_TOKEN_LOCATION)
-        try:
-            token = await _get_token_from_request(
-                request=request,
-                refresh=refresh,
-                locations=locations,
-                config=self.config,
-                # header_name=self.config.JWT_HEADER_NAME,
-                # header_type=self.config.JWT_HEADER_TYPE,
-                # csrf_protect=self.config.JWT_COOKIE_CSRF_PROTECT,
-                # csrf_in_form=self.config.JWT_CSRF_CHECK_FORM,
-                # csrf_methods=self.config.JWT_CSRF_METHODS,
-                # param_name=self.config.JWT_QUERY_STRING_NAME,
-                # cookie_key=(
-                #     self.config.JWT_REFRESH_COOKIE_NAME
-                #     if refresh
-                #     else self.config.JWT_ACCESS_COOKIE_NAME
-                # ),
-                # csrf_header_key=(
-                #     self.config.JWT_REFRESH_CSRF_HEADER_NAME
-                #     if refresh
-                #     else self.config.JWT_ACCESS_CSRF_HEADER_NAME
-                # ),
-                # csrf_field_key=(
-                #     self.config.JWT_REFRESH_CSRF_HEADER_NAME
-                #     if refresh
-                #     else self.config.JWT_ACCESS_CSRF_HEADER_NAME
-                # ),
-                # key=(
-                #     self.config.JWT_REFRESH_JSON_KEY
-                #     if refresh
-                #     else self.config.JWT_JSON_KEY
-                # ),
-            )
-            return token
-        except NoAuthorizationError as e:
-            raise e
+    # endregion
 
     async def get_access_token_from_request(self, request: Request) -> RequestToken:
         """Dependency to retrieve access token from request
@@ -445,35 +470,7 @@ class FastJWT:
         """
         return await self._get_token_from_request(request, refresh=True)
 
-    async def _auth_required(
-        self,
-        request: Request,
-        type: str = "access",
-        verify_type: bool = True,
-        verify_fresh: bool = False,
-        verify_csrf: Optional[bool] = None,
-    ) -> TokenPayload:
-        if type == "access":
-            method = self.get_access_token_from_request
-        elif type == "refresh":
-            method = self.get_refresh_token_from_request
-        else:
-            ...
-        if verify_csrf is None:
-            verify_csrf = self.config.JWT_COOKIE_CSRF_PROTECT and (
-                request.method.upper() in self.config.JWT_CSRF_METHODS
-            )
-
-        request_token = await method(
-            request=request,
-        )
-
-        return self.verify_token(
-            request_token,
-            verify_type=verify_type,
-            verify_fresh=verify_fresh,
-            verify_csrf=verify_csrf,
-        )
+    # region Dependencies
 
     def token_required(
         self,
@@ -481,7 +478,7 @@ class FastJWT:
         verify_type: bool = True,
         verify_fresh: bool = False,
         verify_csrf: Optional[bool] = None,
-    ) -> TokenPayload:
+    ) -> Callable[[Request], TokenPayload]:
         """Dependency to enforce valid token availability in request
 
         Args:
@@ -491,7 +488,7 @@ class FastJWT:
             verify_csrf (Optional[bool], optional): Enable CSRF verification. Defaults to None.
 
         Returns:
-            TokenPayload: Valid token Payload retrieved
+            Callable[[Request], TokenPayload]: Dependency for Valid token Payload retrieval
         """
         return partial(
             self._auth_required,
@@ -501,23 +498,46 @@ class FastJWT:
             verify_type=verify_type,
         )
 
-    def get_payload(self, token: str, verify: bool) -> TokenPayload:
-        return self._decode_token(token=token, verify=verify)
+    def fresh_token_required(
+        self,
+        type: str = "access",
+        verify_type: bool = True,
+        verify_csrf: Optional[bool] = None,
+    ) -> Callable[[Request], TokenPayload]:
+        return self.token_required(
+            type=type,
+            verify_csrf=verify_csrf,
+            verify_fresh=True,
+            verify_type=verify_type,
+        )
 
-    def get_uid(self) -> str:
-        raise NotImplementedError
+    def access_token_required(
+        self,
+        verify_fresh: bool = False,
+        verify_csrf: Optional[bool] = None,
+    ) -> Callable[[Request], TokenPayload]:
+        return self.token_required(
+            type="refresh",
+            verify_csrf=verify_csrf,
+            verify_fresh=verify_fresh,
+            verify_type=True,
+        )
 
-    def get_sub(self) -> str:
-        raise NotImplementedError
+    def refresh_token_required(
+        self,
+        verify_fresh: bool = False,
+        verify_csrf: Optional[bool] = None,
+    ) -> Callable[[Request], TokenPayload]:
+        return self.token_required(
+            type="refresh",
+            verify_csrf=verify_csrf,
+            verify_fresh=verify_fresh,
+            verify_type=True,
+        )
 
-    def get_subject(self) -> ...:
-        raise NotImplementedError
+    async def get_current_subject(self, request: Request) -> Optional[T]:
+        token = await self._auth_required(request=request)
+        uid = token.sub
+        return self._get_current_subject(uid=uid)
 
-    def get_user(self) -> ...:
-        raise NotImplementedError
-
-    def access_token_required(self) -> ...:
-        raise NotImplementedError
-
-    def refresh_token_required(self) -> ...:
-        raise NotImplementedError
+    # endregion

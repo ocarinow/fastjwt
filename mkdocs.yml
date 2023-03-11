@@ -40,7 +40,10 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.tabbed:
-      alternate_style: true 
+      alternate_style: true
+plugins:
+  - search
+  - mkdocstrings
 nav:
   - Overview: index.md
   - Get Started: 
@@ -48,11 +51,18 @@ nav:
     - get-started/tutorial.md
     - get-started/payload.md
     - get-started/refresh.md
+    - get-started/fresh.md
   - Callbacks:
     - callbacks/user.md
     - callbacks/token.md
   - JWT Locations: locations.md
+  - Dependencies: deps.md
+  - Error Handling: errors.md
   - Configuration: config.md
+  - API:
+    - api/fastjwt.md
+    - api/config.md
+    - api/deps.md
     
 extra:
   generator: true

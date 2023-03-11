@@ -1,0 +1,3 @@
+# FastJWTDeps
+
+::: fastjwt.dependencies.FastJWTDeps
