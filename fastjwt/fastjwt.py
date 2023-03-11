@@ -1,6 +1,7 @@
 from typing import Any
 from typing import Dict
 from typing import TypeVar
+from typing import Callable
 from typing import Optional
 from functools import partial
 
@@ -477,7 +478,7 @@ class FastJWT(_CallbackHandler[T]):
         verify_type: bool = True,
         verify_fresh: bool = False,
         verify_csrf: Optional[bool] = None,
-    ) -> TokenPayload:
+    ) -> Callable[[Request], TokenPayload]:
         """Dependency to enforce valid token availability in request
 
         Args:
@@ -487,7 +488,7 @@ class FastJWT(_CallbackHandler[T]):
             verify_csrf (Optional[bool], optional): Enable CSRF verification. Defaults to None.
 
         Returns:
-            TokenPayload: Valid token Payload retrieved
+            Callable[[Request], TokenPayload]: Dependency for Valid token Payload retrieval
         """
         return partial(
             self._auth_required,
@@ -502,7 +503,7 @@ class FastJWT(_CallbackHandler[T]):
         type: str = "access",
         verify_type: bool = True,
         verify_csrf: Optional[bool] = None,
-    ) -> TokenPayload:
+    ) -> Callable[[Request], TokenPayload]:
         return self.token_required(
             type=type,
             verify_csrf=verify_csrf,
@@ -514,7 +515,7 @@ class FastJWT(_CallbackHandler[T]):
         self,
         verify_fresh: bool = False,
         verify_csrf: Optional[bool] = None,
-    ) -> TokenPayload:
+    ) -> Callable[[Request], TokenPayload]:
         return self.token_required(
             type="refresh",
             verify_csrf=verify_csrf,
@@ -526,7 +527,7 @@ class FastJWT(_CallbackHandler[T]):
         self,
         verify_fresh: bool = False,
         verify_csrf: Optional[bool] = None,
-    ) -> TokenPayload:
+    ) -> Callable[[Request], TokenPayload]:
         return self.token_required(
             type="refresh",
             verify_csrf=verify_csrf,
