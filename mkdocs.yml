@@ -50,6 +50,7 @@ nav:
     - get-started/tutorial.md
     - get-started/payload.md
     - get-started/refresh.md
+    - get-started/fresh.md
   - Callbacks:
     - callbacks/user.md
     - callbacks/token.md
