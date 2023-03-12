@@ -31,19 +31,19 @@ class _CallbackHandler(Generic[T]):
 
     @property
     def is_token_callback_set(self) -> bool:
-        return self.callback_get_model_instance is not None
+        return self.callback_is_token_in_blocklist is not None
 
     def _check_model_callback_is_set(self, ignore_errors: bool = True) -> bool:
         if self.is_model_callback_set:
             return True
-        if ignore_errors:
+        if not ignore_errors:
             raise self._callback_model_set_exception
         return False
 
     def _check_token_callback_is_set(self, ignore_errors: bool = True) -> bool:
         if self.is_token_callback_set:
             return True
-        if ignore_errors:
+        if not ignore_errors:
             raise self._callback_token_set_exception
         return False
 
@@ -59,6 +59,7 @@ class _CallbackHandler(Generic[T]):
         return callback(uid, **kwargs)
 
     def is_token_in_blocklist(self, token: str, **kwargs) -> bool:
-        self._check_token_callback_is_set()
-        callback: TokenCallback = self.callback_is_token_in_blocklist
-        return callback(token, **kwargs)
+        if self._check_token_callback_is_set(ignore_errors=True):
+            callback: TokenCallback = self.callback_is_token_in_blocklist
+            return callback(token, **kwargs)
+        return False

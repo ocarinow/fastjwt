@@ -21,6 +21,7 @@ from .models import RequestToken
 from .models import TokenPayload
 from .callback import _CallbackHandler
 from .exceptions import MissingTokenError
+from .exceptions import RevokedTokenError
 from .dependencies import FastJWTDeps
 
 T = TypeVar("T")
@@ -321,6 +322,9 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         request_token = await method(
             request=request,
         )
+
+        if self.is_token_in_blocklist(request_token.token):
+            raise RevokedTokenError("Token has been revoked")
 
         return self.verify_token(
             request_token,
