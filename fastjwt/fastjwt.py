@@ -16,10 +16,10 @@ from .types import TokenLocations
 from .types import DateTimeExpression
 from .utils import get_uuid
 from .config import FJWTConfig
-from .errors import _ErrorHandler
 from .models import RequestToken
 from .models import TokenPayload
-from .callback import _CallbackHandler
+from ._errors import _ErrorHandler
+from ._callback import _CallbackHandler
 from .exceptions import MissingTokenError
 from .exceptions import RevokedTokenError
 from .dependencies import FastJWTDeps

@@ -1,4 +1,3 @@
-import inspect
 from typing import Generic
 from typing import TypeVar
 from typing import Optional
