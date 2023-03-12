@@ -64,9 +64,6 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         """
         return self._config
 
-    def get_dependency(self, request: Request, response: Response):
-        return FastJWTDeps(self, request=request, response=response)
-
     # region Core methods
 
     def _create_payload(
@@ -501,6 +498,26 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
     # region Dependencies
 
+    def get_dependency(self, request: Request, response: Response) -> FastJWTDeps:
+        """FastAPI Dependency to return a FastJWT sub-object within the route context
+
+        Note:
+            The FastJWTDeps is a utility class, to enable quick token operations
+            within the route logic. It provides methods to avoid addtional code
+            in your route that would be outside of the route logic
+
+            Such methods includes setting and unsetting cookies without the need
+            to generate a response object beforhand
+
+        Args:
+            request (Request): Request context managed by FastAPI
+            response (Response): Response context managed by FastAPI
+
+        Returns:
+            FastJWTDeps: The contextful FastJWT object
+        """
+        return FastJWTDeps(self, request=request, response=response)
+
     def token_required(
         self,
         type: str = "access",
@@ -533,6 +550,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
     @property
     def fresh_token_required(self) -> Callable[[Request], TokenPayload]:
+        """FastAPI Dependency to enforce presence of a `fresh` 'access' token in request"""
         return self.token_required(
             type="access",
             verify_csrf=None,
@@ -542,6 +560,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
     @property
     def access_token_required(self) -> Callable[[Request], TokenPayload]:
+        """FastAPI Dependency to enforce presence of an 'access' token in request"""
         return self.token_required(
             type="access",
             verify_csrf=None,
@@ -551,6 +570,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
     @property
     def refresh_token_required(self) -> Callable[[Request], TokenPayload]:
+        """FastAPI Dependency to enforce presence of a 'refresh' token in request"""
         return self.token_required(
             type="refresh",
             verify_csrf=None,
@@ -563,21 +583,27 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         uid = token.sub
         return self._get_current_subject(uid=uid)
 
-    @overload
-    def get_token_from_request(
-        self, type: TokenType = "access", optional: Literal[False] = False
-    ) -> RequestToken:
-        ...
-
-    @overload
-    def get_token_from_request(
-        self, type: TokenType = "access", optional: Literal[True] = True
-    ) -> Optional[RequestToken]:
-        ...
-
     def get_token_from_request(
         self, type: TokenType = "access", optional: bool = True
     ) -> Optional[RequestToken]:
+        """Return token from response if available
+
+        Note:
+            When `optional=True`, the return value might be `None`
+            if no token is available in request
+
+            When `optional=False`, raises a MissingTokenError
+
+        Args:
+            type (TokenType, optional): The type of token to retrieve from request.
+                Defaults to "access".
+            optional (bool, optional): Whether or not to enforce token presence in request.
+                Defaults to True.
+
+        Returns:
+            Optional[RequestToken]: The RequestToken if available
+        """
+
         async def _token_getter(request: Request):
             return await self._get_token_from_request(
                 request, optional=optional, refresh=(type == "refresh")

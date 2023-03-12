@@ -12,6 +12,8 @@ from fastjwt import exceptions
 
 class _ErrorHandler:
     def __init__(self) -> None:
+        """Base Handler for FastAPI handling FastJWT Exceptions"""
+
         self.MSG_DEFAULT = "FastJWTException"
         self.MSG_TOKEN_ERROR = "Token Error"
         self.MSG_MISSING_TOKEN_ERROR = "Missing JWT in request"
@@ -32,6 +34,17 @@ class _ErrorHandler:
         status_code: int,
         message: Optional[str] = None,
     ) -> Coroutine[Any, Any, JSONResponse]:
+        """Generate the async function to be decorated by `FastAPI.exception_handler` decorator
+
+        Args:
+            exception (Type[exceptions.FastJWTException]): Exception type to handle
+            status_code (int): Status code relative to such exception
+            message (Optional[str], optional): Default message. Defaults to None.
+
+        Returns:
+            Coroutine[Any, Any, JSONResponse]: Exception handler coroutine
+        """
+
         async def _error_handler(request: Request, exc: exception):
             if message is None:
                 msg = exc.args[0]
@@ -48,14 +61,27 @@ class _ErrorHandler:
         self,
         app: FastAPI,
         exception: Type[exceptions.FastJWTException],
-        message: str,
         status_code: int,
+        message: str,
     ) -> None:
+        """Add an exception handler to a FastAPI application
+
+        Args:
+            app (FastAPI): the FastAPI application to handle errors for
+            exception (Type[exceptions.FastJWTException]): Exception type to handle
+            status_code (int): Status code relative to such exception
+            message (str): Default message. Defaults to None.
+        """
         app.exception_handler(exception)(
             self._error_handler(exception, status_code, message)
         )
 
     def handle_errors(self, app: FastAPI) -> None:
+        """Add the `FastAPI.exception_handlers` relative to FastJWT exceptions
+
+        Args:
+            app (FastAPI): the FastAPI application to handle errors for
+        """
         self._set_app_exception_handler(
             app, exception=exceptions.JWTDecodeError, status_code=422, message=None
         )
