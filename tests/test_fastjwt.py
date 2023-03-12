@@ -257,10 +257,8 @@ async def test_token_required(fjwt: FastJWT, access_token: str):
         }
     )
 
-    dependency = fjwt.token_required()
-    access_token: TokenPayload = await dependency(
-        request=req, verify_fresh=True, type="access"
-    )
+    dependency = fjwt.token_required(verify_fresh=True, type="access")
+    access_token: TokenPayload = await dependency(request=req)
     assert access_token.type == "access"
 
 
