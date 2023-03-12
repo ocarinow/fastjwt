@@ -28,6 +28,8 @@ from .exceptions import CSRFError
 from .exceptions import JWTDecodeError
 from .exceptions import TokenTypeError
 from .exceptions import FreshTokenRequiredError
+from .exceptions import AccessTokenRequiredError
+from .exceptions import RefreshTokenRequiredError
 
 
 class TokenPayload(BaseModel):
@@ -207,21 +209,24 @@ class RequestToken(BaseModel):
             payload = TokenPayload.parse_obj(decoded_token)
         except JWTDecodeError as e:
             print("JWTERROR", e.args)
-            raise JWTDecodeError(e.args[0])
+            raise JWTDecodeError(*e.args)
         except ValidationError as e:
-            raise JWTDecodeError(e.args[0])
+            raise JWTDecodeError(*e.args)
 
         # TODO Verify Headers
 
         if verify_type and (self.type != payload.type):
-            raise TokenTypeError(
-                f"'{self.type}' token required, '{payload.type}' token received"
-            )
+            error_msg = f"'{self.type}' token required, '{payload.type}' token received"
+            if self.type == "access":
+                raise AccessTokenRequiredError(error_msg)
+            elif self.type == "refresh":
+                raise RefreshTokenRequiredError(error_msg)
+            raise TokenTypeError(error_msg)
 
         if verify_fresh and not payload.fresh:
             raise FreshTokenRequiredError("Fresh token required")
 
-        if verify_csrf:
+        if verify_csrf and self.location == "cookies":
             if self.csrf is None:
                 raise CSRFError("Missing CSRF in request")
             if payload.csrf is None:

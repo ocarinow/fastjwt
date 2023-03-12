@@ -1,30 +1,36 @@
 from typing import Any
 from typing import Dict
+from typing import Literal
 from typing import TypeVar
 from typing import Callable
 from typing import Optional
+from typing import overload
 from functools import partial
 
-from fastapi import Depends
 from fastapi import Request
 from fastapi import Response
 
 from .core import _get_token_from_request
 from .types import StrOrSeq
+from .types import TokenType
 from .types import TokenLocations
 from .types import DateTimeExpression
 from .utils import get_uuid
 from .config import FJWTConfig
+from .errors import _ErrorHandler
 from .models import RequestToken
 from .models import TokenPayload
 from .callback import _CallbackHandler
-from .exceptions import NoAuthorizationError
+from .exceptions import MissingTokenError
+from .exceptions import MissingCSRFTokenError
+from .exceptions import AccessTokenRequiredError
+from .exceptions import RefreshTokenRequiredError
 from .dependencies import FastJWTDeps
 
 T = TypeVar("T")
 
 
-class FastJWT(_CallbackHandler[T]):
+class FastJWT(_CallbackHandler[T], _ErrorHandler):
     """The base FastJWT object
 
     TODO
@@ -40,7 +46,8 @@ class FastJWT(_CallbackHandler[T]):
             config (FJWTConfig, optional): Configuration instance to use. Defaults to FJWTConfig().
             model (Optional[T], optional): Model type hint. Defaults to Dict[str, Any].
         """
-        super().__init__(model)
+        super().__init__(model=model)
+        super(_CallbackHandler, self).__init__()
         self._config = config
 
     def load_config(self, config: FJWTConfig) -> None:
@@ -228,12 +235,33 @@ class FastJWT(_CallbackHandler[T]):
                 domain=self.config.JWT_COOKIE_DOMAIN,
             )
 
+    @overload
     async def _get_token_from_request(
         self,
         request: Request,
         locations: Optional[TokenLocations] = None,
         refresh: bool = False,
+        optional: Literal[False] = False,
     ) -> RequestToken:
+        ...
+
+    @overload
+    async def _get_token_from_request(
+        self,
+        request: Request,
+        locations: Optional[TokenLocations] = None,
+        refresh: bool = False,
+        optional: Literal[True] = True,
+    ) -> Optional[RequestToken]:
+        ...
+
+    async def _get_token_from_request(
+        self,
+        request: Request,
+        locations: Optional[TokenLocations] = None,
+        refresh: bool = False,
+        optional: bool = False,
+    ) -> Optional[RequestToken]:
         if refresh and locations is None:
             locations = list(
                 set(self.config.JWT_TOKEN_LOCATION).intersection(["cookies", "json"])
@@ -247,8 +275,13 @@ class FastJWT(_CallbackHandler[T]):
                 locations=locations,
                 config=self.config,
             )
+            print("Token Obtained", token)
             return token
-        except NoAuthorizationError as e:
+        except MissingTokenError as e:
+            print("IsInError")
+            if optional:
+                print("IsInErrorOptional")
+                return None
             raise e
 
     async def _auth_required(
@@ -266,7 +299,6 @@ class FastJWT(_CallbackHandler[T]):
         else:
             ...
         if verify_csrf is None:
-            print(request)
             verify_csrf = self.config.JWT_COOKIE_CSRF_PROTECT and (
                 request.method.upper() in self.config.JWT_CSRF_METHODS
             )
@@ -457,7 +489,7 @@ class FastJWT(_CallbackHandler[T]):
         Returns:
             RequestToken: Request Token instance for 'access' token type
         """
-        return await self._get_token_from_request(request)
+        return await self._get_token_from_request(request, optional=False)
 
     async def get_refresh_token_from_request(self, request: Request) -> RequestToken:
         """Dependency to retrieve refresh token from request
@@ -468,7 +500,7 @@ class FastJWT(_CallbackHandler[T]):
         Returns:
             RequestToken: Request Token instance for 'refresh' token type
         """
-        return await self._get_token_from_request(request, refresh=True)
+        return await self._get_token_from_request(request, refresh=True, optional=False)
 
     # region Dependencies
 
@@ -490,22 +522,25 @@ class FastJWT(_CallbackHandler[T]):
         Returns:
             Callable[[Request], TokenPayload]: Dependency for Valid token Payload retrieval
         """
-        return partial(
-            self._auth_required,
-            type=type,
-            verify_csrf=verify_csrf,
-            verify_fresh=verify_fresh,
-            verify_type=verify_type,
-        )
+
+        async def _auth_required(request: Request):
+            return await self._auth_required(
+                request=request,
+                type=type,
+                verify_csrf=verify_csrf,
+                verify_type=verify_type,
+                verify_fresh=verify_fresh,
+            )
+
+        return _auth_required
 
     def fresh_token_required(
         self,
-        type: str = "access",
         verify_type: bool = True,
         verify_csrf: Optional[bool] = None,
     ) -> Callable[[Request], TokenPayload]:
         return self.token_required(
-            type=type,
+            type="access",
             verify_csrf=verify_csrf,
             verify_fresh=True,
             verify_type=verify_type,
@@ -517,7 +552,7 @@ class FastJWT(_CallbackHandler[T]):
         verify_csrf: Optional[bool] = None,
     ) -> Callable[[Request], TokenPayload]:
         return self.token_required(
-            type="refresh",
+            type="access",
             verify_csrf=verify_csrf,
             verify_fresh=verify_fresh,
             verify_type=True,
@@ -535,9 +570,31 @@ class FastJWT(_CallbackHandler[T]):
             verify_type=True,
         )
 
-    async def get_current_subject(self, request: Request) -> Optional[T]:
-        token = await self._auth_required(request=request)
+    def get_current_subject(self, request: Request) -> Optional[T]:
+        token: TokenPayload = self._auth_required(request=request)
         uid = token.sub
         return self._get_current_subject(uid=uid)
+
+    @overload
+    def get_token_from_request(
+        self, type: TokenType = "access", optional: Literal[False] = False
+    ) -> RequestToken:
+        ...
+
+    @overload
+    def get_token_from_request(
+        self, type: TokenType = "access", optional: Literal[True] = True
+    ) -> Optional[RequestToken]:
+        ...
+
+    def get_token_from_request(
+        self, type: TokenType = "access", optional: bool = True
+    ) -> Optional[RequestToken]:
+        async def _token_getter(request: Request):
+            return await self._get_token_from_request(
+                request, optional=optional, refresh=(type == "refresh")
+            )
+
+        return _token_getter
 
     # endregion

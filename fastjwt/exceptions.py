@@ -37,6 +37,18 @@ class TokenError(FastJWTException):
     pass
 
 
+class MissingTokenError(TokenError):
+    """Exception raised when no token can be parsed from request"""
+
+    pass
+
+
+class MissingCSRFTokenError(TokenError):
+    """Exception raised when no CSRF token can be parsed from request"""
+
+    pass
+
+
 class TokenTypeError(TokenError):
     """Base Exception for token related errors"""
 

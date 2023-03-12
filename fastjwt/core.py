@@ -16,7 +16,8 @@ from .types import TokenLocation
 from .types import TokenLocations
 from .config import FJWTConfig
 from .models import RequestToken
-from .exceptions import NoAuthorizationError
+from .exceptions import MissingTokenError
+from .exceptions import MissingCSRFTokenError
 
 
 async def _get_token_from_headers(
@@ -32,7 +33,7 @@ async def _get_token_from_headers(
         header_type (str, optional): The Header type. Defaults to "Bearer".
 
     Raises:
-        NoAuthorizationError: Raised when no token is available in headers
+        MissingTokenError: Raised when no token is available in headers
 
     Returns:
         RequestToken: the token available in headers
@@ -40,7 +41,7 @@ async def _get_token_from_headers(
     # Get Header
     auth_header: Optional[str] = request.headers.get(config.JWT_HEADER_NAME)
     if auth_header is None:
-        raise NoAuthorizationError(
+        raise MissingTokenError(
             f"Missing '{config.JWT_HEADER_TYPE}' in '{config.JWT_HEADER_NAME}' header."
         )
 
@@ -73,8 +74,8 @@ async def _get_token_from_cookies(
         csrf_methods (HTTPMethods, optional): Request methods to check for CSRF. Defaults to ["POST", "PUT", "PATCH", "DELETE"].
 
     Raises:
-        NoAuthorizationError: Raised when no token is available in cookies
-        NoAuthorizationError: Missing CSRF token
+        MissingTokenError: Raised when no token is available in cookies
+        MissingTokenError: Missing CSRF token
 
     Returns:
         RequestToken: the token available in cookies
@@ -89,7 +90,7 @@ async def _get_token_from_cookies(
 
     cookie_token = request.cookies.get(cookie_key)
     if not cookie_token:
-        raise NoAuthorizationError(f"Missing cookie '{cookie_key}'.")
+        raise MissingTokenError(f"Missing cookie '{cookie_key}'.")
 
     csrf_token = None
     if (
@@ -104,7 +105,7 @@ async def _get_token_from_cookies(
             if form_data is not None:
                 csrf_token = form_data.get(csrf_field_key)
         if not csrf_token:
-            raise NoAuthorizationError("Missing CSRF token")
+            raise MissingCSRFTokenError("Missing CSRF token")
 
     return RequestToken(
         token=cookie_token,
@@ -124,14 +125,14 @@ async def _get_token_from_query(
         param_name (str, optional): the parameter name for the token. Defaults to "token".
 
     Raises:
-        NoAuthorizationError: Raised when no token is available in query
+        MissingTokenError: Raised when no token is available in query
 
     Returns:
         RequestToken: the token available in query
     """
     query_token = request.query_params.get(config.JWT_QUERY_STRING_NAME)
     if query_token is None:
-        raise NoAuthorizationError(
+        raise MissingTokenError(
             f"Missing '{config.JWT_QUERY_STRING_NAME}' in query parameters"
         )
 
@@ -149,14 +150,14 @@ async def _get_token_from_json(
         key (str, optional): the json key containing the token. Defaults to "access_token".
 
     Raises:
-        NoAuthorizationError: Invalid content-type. Must be application/json
-        NoAuthorizationError: Missing token in json data
+        MissingTokenError: Invalid content-type. Must be application/json
+        MissingTokenError: Missing token in json data
 
     Returns:
         Optional[RequestToken]: _description_
     """
     if not (request.headers.get("content-type") == "application/json"):
-        raise NoAuthorizationError("Invalid content-type. Must be application/json")
+        raise MissingTokenError("Invalid content-type. Must be application/json")
 
     key = config.JWT_JSON_KEY
     token_type = "access"
@@ -174,8 +175,8 @@ async def _get_token_from_json(
                 location="json",
             )
     except Exception:
-        raise NoAuthorizationError("Token is not parsable")
-    raise NoAuthorizationError("Missing token in json data")
+        raise MissingTokenError("Token is not parsable")
+    raise MissingTokenError("Missing token in json data")
 
 
 TOKEN_GETTERS: Dict[
@@ -196,7 +197,7 @@ async def _get_token_from_request(
     locations: Optional[TokenLocations] = None,
     **kwargs,
 ) -> RequestToken:
-    errors: List[NoAuthorizationError] = []
+    errors: List[MissingTokenError] = []
 
     if locations is None:
         locations = config.JWT_TOKEN_LOCATION
@@ -207,9 +208,9 @@ async def _get_token_from_request(
             token = await getter(request, config=config, refresh=refresh)
             if token is not None:
                 return token
-        except NoAuthorizationError as e:
+        except MissingTokenError as e:
             errors.append(e)
 
     if errors:
-        raise NoAuthorizationError(*(str(err) for err in errors))
-    raise NoAuthorizationError(f"No token found in request from '{locations}'")
+        raise MissingTokenError(*(str(err) for err in errors))
+    raise MissingTokenError(f"No token found in request from '{locations}'")
