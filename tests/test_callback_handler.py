@@ -1,11 +1,5 @@
-import json
-
 import pytest
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi.responses import JSONResponse
 
-import fastjwt.exceptions as exc
 from fastjwt.fastjwt import FastJWT
 
 
