@@ -1,8 +1,8 @@
-# FastJWT CI/CD - GITHUB ACTIONS
+# Semantic Versioning
 
-- [FastJWT CI/CD - GITHUB ACTIONS](#fastjwt-cicd---github-actions)
+- [Semantic Versioning](#semantic-versioning)
   - [Commit Flow](#commit-flow)
-  - [Semantic Versioning](#semantic-versioning)
+  - [Semantic Versioning](#semantic-versioning-1)
   - [Tags](#tags)
   - [Scope](#scope)
   - [Exclamation Breaking](#exclamation-breaking)
@@ -11,8 +11,10 @@
 
 ## Commit Flow
 
-The Semantic Versioning is automatically trigger via [GitHub Actions](./workflows/python-release.yaml) on the `main` branch after a merge Pull Request
+The Semantic Versioning is automatically trigger via [GitHub Actions](https://github.com/ocarinow/fastjwt/blob/main/.github/workflows/python-release.yaml) on the `main` branch after a merge Pull Request
 
+
+<div style="width:100%;overflow-y:hidden;">
 ```mermaid
 %%{init: { 'logLevel': 'debug', 'theme': 'base', 'gitGraph': {'rotateCommitLabel': true}} }%%
 gitGraph
@@ -44,6 +46,7 @@ gitGraph
     merge main
     commit id: "SemVer GitHub Action MAJOR" tag: "v1.0.0"
 ```
+</div>
 
 While a PATCH/MINOR/MAJOR modification is detected after a merge pull request from `dev` to `main` branch. You will need to merge you `dev` branch with the newly commited `main` branch to be up to date.
 
