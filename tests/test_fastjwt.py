@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastjwt.models import RequestToken
 from fastjwt.models import TokenPayload
 from fastjwt.fastjwt import FastJWT
-from fastjwt.exceptions import NoAuthorizationError
+from fastjwt.exceptions import MissingTokenError
 
 
 @pytest.fixture(scope="function")
@@ -165,7 +165,7 @@ async def test_get_token_from_request_without_auth(fjwt: FastJWT):
             "headers": [],
         }
     )
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await fjwt._get_token_from_request(
             request=req, refresh=False, locations=["headers"]
         )
