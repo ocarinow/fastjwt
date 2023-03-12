@@ -43,7 +43,7 @@ class MissingTokenError(TokenError):
     pass
 
 
-class MissingCSRFTokenError(TokenError):
+class MissingCSRFTokenError(MissingTokenError):
     """Exception raised when no CSRF token can be parsed from request"""
 
     pass
@@ -73,13 +73,13 @@ class FreshTokenRequiredError(TokenError):
     pass
 
 
-class AccessTokenRequiredError(TokenError):
+class AccessTokenRequiredError(TokenTypeError):
     """Exception raised when an 'access' token is missing from request"""
 
     pass
 
 
-class RefreshTokenRequiredError(TokenError):
+class RefreshTokenRequiredError(TokenTypeError):
     """Exception raised when an 'refresh' token is missing from request"""
 
     pass
