@@ -558,8 +558,8 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
             verify_type=True,
         )
 
-    def get_current_subject(self, request: Request) -> Optional[T]:
-        token: TokenPayload = self._auth_required(request=request)
+    async def get_current_subject(self, request: Request) -> Optional[T]:
+        token: TokenPayload = await self._auth_required(request=request)
         uid = token.sub
         return self._get_current_subject(uid=uid)
 
