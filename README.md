@@ -12,10 +12,10 @@
 <a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-publish.yaml/badge.svg" alt="Publish Status" /></a></p>
 
 <p style="text-align:center;">
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/dev/reports/coverage-badge.svg" alt="Coverage" /></a>
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/dev/reports/docstr-badge.svg" alt="Docstring" /></a>
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/dev/reports/flake8-badge.svg" alt="Flake8" /></a>
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/dev/reports/tests-badge.svg" alt="Tests" /></a></p>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/coverage-badge.svg" alt="Coverage" /></a>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/docstr-badge.svg" alt="Docstring" /></a>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/flake8-badge.svg" alt="Flake8" /></a>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/tests-badge.svg" alt="Tests" /></a></p>
 
 
 <p style="text-align:center;">
