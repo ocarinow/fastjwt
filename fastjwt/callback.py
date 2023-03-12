@@ -33,14 +33,14 @@ class _CallbackHandler(Generic[T]):
     def is_token_callback_set(self) -> bool:
         return self.callback_is_token_in_blocklist is not None
 
-    def _check_model_callback_is_set(self, ignore_errors: bool = True) -> bool:
+    def _check_model_callback_is_set(self, ignore_errors: bool = False) -> bool:
         if self.is_model_callback_set:
             return True
         if not ignore_errors:
             raise self._callback_model_set_exception
         return False
 
-    def _check_token_callback_is_set(self, ignore_errors: bool = True) -> bool:
+    def _check_token_callback_is_set(self, ignore_errors: bool = False) -> bool:
         if self.is_token_callback_set:
             return True
         if not ignore_errors:
