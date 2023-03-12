@@ -208,7 +208,6 @@ class RequestToken(BaseModel):
             # Parse payload
             payload = TokenPayload.parse_obj(decoded_token)
         except JWTDecodeError as e:
-            print("JWTERROR", e.args)
             raise JWTDecodeError(*e.args)
         except ValidationError as e:
             raise JWTDecodeError(*e.args)

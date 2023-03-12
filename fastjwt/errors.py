@@ -57,7 +57,7 @@ class _ErrorHandler:
 
     def handle_errors(self, app: FastAPI) -> None:
         self._set_app_exception_handler(
-            app, exception=exceptions.JWTDecodeError, status_code=401, message=None
+            app, exception=exceptions.JWTDecodeError, status_code=422, message=None
         )
         self._set_app_exception_handler(
             app,

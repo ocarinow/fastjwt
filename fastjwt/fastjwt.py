@@ -5,7 +5,6 @@ from typing import TypeVar
 from typing import Callable
 from typing import Optional
 from typing import overload
-from functools import partial
 
 from fastapi import Request
 from fastapi import Response
@@ -22,9 +21,6 @@ from .models import RequestToken
 from .models import TokenPayload
 from .callback import _CallbackHandler
 from .exceptions import MissingTokenError
-from .exceptions import MissingCSRFTokenError
-from .exceptions import AccessTokenRequiredError
-from .exceptions import RefreshTokenRequiredError
 from .dependencies import FastJWTDeps
 
 T = TypeVar("T")
@@ -70,7 +66,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
     def get_dependency(self, request: Request, response: Response):
         return FastJWTDeps(self, request=request, response=response)
 
-    # region Private methods
+    # region Core methods
 
     def _create_payload(
         self,
@@ -275,14 +271,33 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
                 locations=locations,
                 config=self.config,
             )
-            print("Token Obtained", token)
             return token
         except MissingTokenError as e:
-            print("IsInError")
             if optional:
-                print("IsInErrorOptional")
                 return None
             raise e
+
+    async def get_access_token_from_request(self, request: Request) -> RequestToken:
+        """Dependency to retrieve access token from request
+
+        Args:
+            request (Request): Request to retrieve access token from
+
+        Returns:
+            RequestToken: Request Token instance for 'access' token type
+        """
+        return await self._get_token_from_request(request, optional=False)
+
+    async def get_refresh_token_from_request(self, request: Request) -> RequestToken:
+        """Dependency to retrieve refresh token from request
+
+        Args:
+            request (Request): Request to retrieve refresh token from
+
+        Returns:
+            RequestToken: Request Token instance for 'refresh' token type
+        """
+        return await self._get_token_from_request(request, refresh=True, optional=False)
 
     async def _auth_required(
         self,
@@ -480,28 +495,6 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
     # endregion
 
-    async def get_access_token_from_request(self, request: Request) -> RequestToken:
-        """Dependency to retrieve access token from request
-
-        Args:
-            request (Request): Request to retrieve access token from
-
-        Returns:
-            RequestToken: Request Token instance for 'access' token type
-        """
-        return await self._get_token_from_request(request, optional=False)
-
-    async def get_refresh_token_from_request(self, request: Request) -> RequestToken:
-        """Dependency to retrieve refresh token from request
-
-        Args:
-            request (Request): Request to retrieve refresh token from
-
-        Returns:
-            RequestToken: Request Token instance for 'refresh' token type
-        """
-        return await self._get_token_from_request(request, refresh=True, optional=False)
-
     # region Dependencies
 
     def token_required(
@@ -534,39 +527,30 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
         return _auth_required
 
-    def fresh_token_required(
-        self,
-        verify_type: bool = True,
-        verify_csrf: Optional[bool] = None,
-    ) -> Callable[[Request], TokenPayload]:
+    @property
+    def fresh_token_required(self) -> Callable[[Request], TokenPayload]:
         return self.token_required(
             type="access",
-            verify_csrf=verify_csrf,
+            verify_csrf=None,
             verify_fresh=True,
-            verify_type=verify_type,
-        )
-
-    def access_token_required(
-        self,
-        verify_fresh: bool = False,
-        verify_csrf: Optional[bool] = None,
-    ) -> Callable[[Request], TokenPayload]:
-        return self.token_required(
-            type="access",
-            verify_csrf=verify_csrf,
-            verify_fresh=verify_fresh,
             verify_type=True,
         )
 
-    def refresh_token_required(
-        self,
-        verify_fresh: bool = False,
-        verify_csrf: Optional[bool] = None,
-    ) -> Callable[[Request], TokenPayload]:
+    @property
+    def access_token_required(self) -> Callable[[Request], TokenPayload]:
+        return self.token_required(
+            type="access",
+            verify_csrf=None,
+            verify_fresh=False,
+            verify_type=True,
+        )
+
+    @property
+    def refresh_token_required(self) -> Callable[[Request], TokenPayload]:
         return self.token_required(
             type="refresh",
-            verify_csrf=verify_csrf,
-            verify_fresh=verify_fresh,
+            verify_csrf=None,
+            verify_fresh=False,
             verify_type=True,
         )
 
