@@ -41,6 +41,11 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 plugins:
   - search
   - mkdocstrings
@@ -59,6 +64,8 @@ nav:
   - Dependencies: deps.md
   - Error Handling: errors.md
   - Configuration: config.md
+  - Development:
+    - Semantic Versioning: dev/semver.md
   - API:
     - api/fastjwt.md
     - api/config.md
