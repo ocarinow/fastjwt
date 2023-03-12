@@ -14,6 +14,7 @@ from fastjwt.core import _get_token_from_headers
 from fastjwt.core import _get_token_from_request
 from fastjwt.config import FJWTConfig
 from fastjwt.exceptions import MissingTokenError
+from fastjwt.exceptions import MissingCSRFTokenError
 
 
 # region Fixtures
@@ -286,7 +287,7 @@ async def test_get_token_from_cookies_post_with_csrf_exception(
             "headers": [*request_cookies],
         }
     )
-    with pytest.raises(MissingTokenError):
+    with pytest.raises(MissingCSRFTokenError):
         await _get_token_from_cookies(request=req, config=config)
 
 
