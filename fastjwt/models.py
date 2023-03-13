@@ -56,6 +56,42 @@ class TokenPayload(BaseModel):
     def _additional_fields(self) -> set[str]:
         return set(self.__dict__) - set(self.__fields__)
 
+    @property
+    def extra_dict(self):
+        return self.dict(include=self._additional_fields)
+
+    @property
+    def issued_at(self) -> datetime.datetime:
+        if isinstance(self.iat, (float, int)):
+            return datetime.datetime.fromtimestamp(self.iat, tz=datetime.timezone.utc)
+        elif isinstance(self.iat, datetime.datetime):
+            return self.iat
+        else:
+            raise TypeError(
+                "'iat' claim should be of type float | int | datetime.datetime"
+            )
+
+    @property
+    def expiry_datetime(self) -> datetime.datetime:
+        if isinstance(self.exp, datetime.datetime):
+            return self.exp
+        elif isinstance(self.exp, datetime.timedelta):
+            return self.issued_at + self.exp
+        elif isinstance(self.exp, (float, int)):
+            return datetime.datetime.fromtimestamp(self.exp, tz=datetime.timezone.utc)
+        else:
+            raise TypeError(
+                "'exp' claim should be of type float | int | datetime.datetime | datetime.timedelta"
+            )
+
+    @property
+    def time_until_expiry(self) -> datetime.timedelta:
+        return self.expiry_datetime - get_now()
+
+    @property
+    def time_since_issued(self) -> datetime.timedelta:
+        return get_now() - self.issued_at
+
     @validator("exp", "nbf", always=True)
     def _set_default_ts(cls, value):
         if isinstance(value, datetime.datetime):

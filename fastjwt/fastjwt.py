@@ -4,6 +4,7 @@ from typing import Literal
 from typing import TypeVar
 from typing import Callable
 from typing import Optional
+from typing import Coroutine
 from typing import overload
 
 from fastapi import Request
@@ -20,6 +21,7 @@ from .models import RequestToken
 from .models import TokenPayload
 from ._errors import _ErrorHandler
 from ._callback import _CallbackHandler
+from .exceptions import FastJWTException
 from .exceptions import MissingTokenError
 from .exceptions import RevokedTokenError
 from .dependencies import FastJWTDeps
@@ -610,5 +612,62 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
             )
 
         return _token_getter
+
+    # endregion
+
+    # region Middlewares
+
+    def _implicit_refresh_enabled_for_request(self, request: Request) -> bool:
+        if (
+            request.url.components.path
+            in self.config.JWT_IMPLICIT_REFRESH_ROUTE_EXCLUDE
+        ):
+            refresh = False
+        elif (
+            request.url.components.path
+            in self.config.JWT_IMPLICIT_REFRESH_ROUTE_INCLUDE
+        ):
+            refresh = True
+        elif request.method in self.config.JWT_IMPLICIT_REFRESH_METHOD_EXCLUDE:
+            refresh = False
+        elif request.method in self.config.JWT_IMPLICIT_REFRESH_METHOD_INCLUDE:
+            refresh = False
+        else:
+            refresh = True
+        return refresh
+
+    async def implicit_refresh_middleware(
+        self, request: Request, call_next: Coroutine
+    ) -> Response:
+        response = await call_next(request)
+
+        request_condition = self.config.has_location(
+            "cookies"
+        ) and self._implicit_refresh_enabled_for_request(request)
+
+        if request_condition:
+            try:
+                # Refresh mechanism
+                token = await self._get_token_from_request(
+                    request=request,
+                    locations=["cookies"],
+                    refresh=False,
+                    optional=False,
+                )
+                payload = self.verify_token(
+                    token, verify_fresh=False, verify_csrf=False
+                )
+                if (
+                    payload.time_until_expiry
+                    < self.config.JWT_IMPLICIT_REFRESH_DELTATIME
+                ):
+                    new_token = self.create_access_token(
+                        uid=payload.sub, fresh=False, data=payload.extra_dict
+                    )
+                    self.set_access_cookies(new_token, response=response)
+            except FastJWTException:
+                pass
+
+        return response
 
     # endregion
