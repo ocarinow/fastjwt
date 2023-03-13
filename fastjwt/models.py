@@ -62,6 +62,14 @@ class TokenPayload(BaseModel):
 
     @property
     def issued_at(self) -> datetime.datetime:
+        """Cast the 'iat' claim as a datetime.datetime
+
+        Raises:
+            TypeError: 'iat' claim is not of type float | int | datetime.datetime
+
+        Returns:
+            datetime.datetime: UTC Datetime token issued date
+        """
         if isinstance(self.iat, (float, int)):
             return datetime.datetime.fromtimestamp(self.iat, tz=datetime.timezone.utc)
         elif isinstance(self.iat, datetime.datetime):
@@ -73,6 +81,14 @@ class TokenPayload(BaseModel):
 
     @property
     def expiry_datetime(self) -> datetime.datetime:
+        """Cast the 'exp' claim as a datetime.datetime
+
+        Raises:
+            TypeError: 'exp' claim is not of type float | int | datetime.datetime | datetime.timedelta
+
+        Returns:
+            datetime.datetime: UTC Datetime token expiry date
+        """
         if isinstance(self.exp, datetime.datetime):
             return self.exp
         elif isinstance(self.exp, datetime.timedelta):
@@ -86,10 +102,20 @@ class TokenPayload(BaseModel):
 
     @property
     def time_until_expiry(self) -> datetime.timedelta:
+        """Return the time remaining until expiry
+
+        Returns:
+            datetime.timedelta: time remaining until expiry
+        """
         return self.expiry_datetime - get_now()
 
     @property
     def time_since_issued(self) -> datetime.timedelta:
+        """Return the time elapsed since token has been issued
+
+        Returns:
+            datetime.timedelta: time elapsed since token has been issued
+        """
         return get_now() - self.issued_at
 
     @validator("exp", "nbf", always=True)
