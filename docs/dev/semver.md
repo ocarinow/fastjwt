@@ -2,7 +2,7 @@
 
 - [Semantic Versioning](#semantic-versioning)
   - [Commit Flow](#commit-flow)
-  - [Semantic Versioning](#semantic-versioning-1)
+  - [Commit Parser](#commit-parser)
   - [Tags](#tags)
   - [Scope](#scope)
   - [Exclamation Breaking](#exclamation-breaking)
@@ -12,7 +12,6 @@
 ## Commit Flow
 
 The Semantic Versioning is automatically trigger via [GitHub Actions](https://github.com/ocarinow/fastjwt/blob/main/.github/workflows/python-release.yaml) on the `main` branch after a merge Pull Request
-
 
 <div style="width:100%;overflow-y:hidden;">
 ```mermaid
@@ -50,7 +49,7 @@ gitGraph
 
 While a PATCH/MINOR/MAJOR modification is detected after a merge pull request from `dev` to `main` branch. You will need to merge you `dev` branch with the newly commited `main` branch to be up to date.
 
-## Semantic Versioning
+## Commit Parser
 
 To automated the package versionning we establish the following convention for commits
 

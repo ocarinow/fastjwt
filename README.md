@@ -17,7 +17,6 @@
 <a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/flake8-badge.svg" alt="Flake8" /></a>
 <a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/tests-badge.svg" alt="Tests" /></a></p>
 
-
 <p style="text-align:center;">
 <a href="https://github.com/ocarinow/fastjwt/commits" alt="Stars"><img src="https://img.shields.io/github/commit-activity/m/ocarinow/fastjwt" alt="Commit Activity" /></a>
 <a href="https://github.com/ocarinow/fastjwt" alt="Repo Size"><img src="https://img.shields.io/github/repo-size/ocarinow/fastjwt" alt="Repo Size" /></a>
@@ -31,14 +30,13 @@
 <a href="https://github.com/ocarinow/fastjwt/watchers" alt="Watchers"><img src="https://img.shields.io/github/watchers/ocarinow/fastjwt?style=social" alt="Watchers" /></a>
 </p>
 
-
 FastAPI Plugin for reusable JWT Authentication Management
 
 **fastjwt** enables easy JSON Web Tokens management within your FastAPI application.
 
 _fastjwt_ is heavily inspired from its Flask equivalent [Flask-JWT-Extended](https://flask-jwt-extended.readthedocs.io/en/stable/)
 
-**Documentation**: https://ocarinow.github.io/fastjwt/
+**Documentation**: [https://ocarinow.github.io/fastjwt/](https://ocarinow.github.io/fastjwt/)
 
 ## Features
 
@@ -94,17 +92,17 @@ def protected():
 ## Development
 
 > <span style="color:orange;">**WORK IN PROGRESS**</span>
-> 
+>
 > The development guide is not available yet
 
 ## Contributing
 
 > <span style="color:orange;">**WORK IN PROGRESS**</span>
-> 
+>
 > The contribution guide is not available yet
 
 ## License
 
 > <span style="color:orange;">**WORK IN PROGRESS**</span>
-> 
+>
 > The license is not available yet (open source MIT considered)
