@@ -618,6 +618,14 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
     # region Middlewares
 
     def _implicit_refresh_enabled_for_request(self, request: Request) -> bool:
+        """Check if a request should implement implicit token refresh
+
+        Args:
+            request (Request): Request to check
+
+        Returns:
+            bool: True if request allows for refreshing access token
+        """
         if (
             request.url.components.path
             in self.config.JWT_IMPLICIT_REFRESH_ROUTE_EXCLUDE
@@ -639,6 +647,28 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
     async def implicit_refresh_middleware(
         self, request: Request, call_next: Coroutine
     ) -> Response:
+        """FastAPI Middleware to enable token refresh for an APIRouter
+
+        Note:
+            This middleware is only based on 'access' tokens.
+            Using implicit refresh mechanism makes use of 'refresh'
+            tokens unnecessary.
+
+        Note:
+            The refreshed 'access' token will not be considered as
+            `fresh`
+
+        Note:
+            The implicit refresh mechanism is only enabled
+            for authorization through cookies.
+
+        Args:
+            request (Request): Incoming request
+            call_next (Coroutine): Endpoint logic to be called
+
+        Returns:
+            Response: Response with update access token cookie if relevant
+        """
         response = await call_next(request)
 
         request_condition = self.config.has_location(
@@ -654,9 +684,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
                     refresh=False,
                     optional=False,
                 )
-                payload = self.verify_token(
-                    token, verify_fresh=False, verify_csrf=False
-                )
+                payload = self.verify_token(token, verify_fresh=False)
                 if (
                     payload.time_until_expiry
                     < self.config.JWT_IMPLICIT_REFRESH_DELTATIME
