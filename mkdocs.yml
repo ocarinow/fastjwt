@@ -62,7 +62,10 @@ nav:
   - Custom Callbacks:
     - callbacks/user.md
     - callbacks/token.md
-  - Dependencies: deps.md
+  - Dependencies:
+    - dependencies/injection.md
+    - dependencies/deps.md
+    - dependencies/bundle.md
   - Error Handling: errors.md
   - Configuration: config.md
   - Development:
@@ -71,6 +74,8 @@ nav:
     - api/fastjwt.md
     - api/config.md
     - api/deps.md
+    - api/token_payload.md
+    - api/request_token.md
     
 extra:
   generator: true

@@ -40,6 +40,7 @@ _fastjwt_ is heavily inspired from its Flask equivalent [Flask-JWT-Extended](htt
 - [X] Handle custom user logic for revoked token validation
 - [X] Handle custom logic for token recipient retrieval _(ORM, pydantic serialization...)_
 - [X] Provide FastAPI compliant dependency injection API
+- [X] Automatic error handling
 
 ## Setup
 

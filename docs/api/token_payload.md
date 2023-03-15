@@ -1,0 +1,3 @@
+# TokenPayload
+
+::: fastjwt.models.TokenPayload

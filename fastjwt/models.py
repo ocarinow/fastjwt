@@ -211,7 +211,7 @@ class TokenPayload(BaseModel):
 class RequestToken(BaseModel):
     """Base model for token data retrieved from requests
 
-    Notes:
+    Args:
         token (Optional[str]): The token retrieved from the request
         csrf (Optional[str]): CSRF Value in request if detailed
         type (TokenType): Type of token.

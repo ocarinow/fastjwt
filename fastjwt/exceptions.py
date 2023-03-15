@@ -50,7 +50,7 @@ class MissingCSRFTokenError(MissingTokenError):
 
 
 class TokenTypeError(TokenError):
-    """Base Exception for token related errors"""
+    """Exception raised when a specific token type is expected"""
 
     pass
 
@@ -74,12 +74,12 @@ class FreshTokenRequiredError(TokenError):
 
 
 class AccessTokenRequiredError(TokenTypeError):
-    """Exception raised when an 'access' token is missing from request"""
+    """Exception raised when an `access` token is missing from request"""
 
     pass
 
 
 class RefreshTokenRequiredError(TokenTypeError):
-    """Exception raised when an 'refresh' token is missing from request"""
+    """Exception raised when an `refresh` token is missing from request"""
 
     pass
