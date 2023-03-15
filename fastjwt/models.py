@@ -33,7 +33,21 @@ from .exceptions import RefreshTokenRequiredError
 
 
 class TokenPayload(BaseModel):
-    """JWT Payload base model"""
+    """JWT Payload base model
+
+    Args:
+        jti (Optional[str]): JWT unique identifier. Defaults to UUID4.
+        iss (Optional[str]): JWT issuer. Defaults to None.
+        sub (Optional[str]): JWT subject. Defaults to None.
+        aud (Optional[str]): JWT audience. Defaults to None.
+        exp (Numeric | DateTimeExpression | None): Expiry date claim. Defaults to None.
+        nbf (Numeric | DateTimeExpression | None): Not before claim. Defaults to None.
+        iat (Numeric | DateTimeExpression | None): Issued at claim. Defaults to None.
+        type (Optional[str]): Token type. Default to None.
+        csrf (Optional[str]): CSRF double submit token. Default to None.
+        scopes (Optional[List[str]]): TODO.
+        fresh (bool): Token freshness state. Defaults to False.
+    """
 
     jti: Optional[str] = Field(default_factory=get_uuid)
     iss: Optional[str] = None
@@ -212,10 +226,10 @@ class RequestToken(BaseModel):
     """Base model for token data retrieved from requests
 
     Args:
-        token (Optional[str]): The token retrieved from the request
-        csrf (Optional[str]): CSRF Value in request if detailed
-        type (TokenType): Type of token.
-        location (TokenLocation): Where the token was found in request
+        type (TokenType): Type of token. Defaults to access.
+        token (Optional[str]): The token retrieved from the request. Defaults to None.
+        csrf (Optional[str]): CSRF Value in request if detailed. Defaults to None.
+        location (TokenLocation): Where the token was found in request.
     """
 
     token: Optional[str] = None
