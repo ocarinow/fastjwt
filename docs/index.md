@@ -9,7 +9,8 @@
 <p style="text-align:center;">
 <a href="https://github.com/ocarinow/fastjwt/actions" alt="Build Status"><img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-release.yaml/badge.svg" alt="Build Status" /></a>
 <a href="https://github.com/ocarinow/fastjwt/actions" alt="Test Status"><img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-test.yaml/badge.svg" alt="Test Status" /></a>
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-publish.yaml/badge.svg" alt="Publish Status" /></a></p>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-publish.yaml/badge.svg" alt="Publish Status" /></a>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-documentation.yaml/badge.svg" alt="Documentation Status" /></a></p>
 
 <p style="text-align:center;">
 <a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/coverage-badge.svg" alt="Coverage" /></a>
