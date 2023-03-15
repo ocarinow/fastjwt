@@ -66,6 +66,7 @@ nav:
     - dependencies/injection.md
     - dependencies/deps.md
     - dependencies/bundle.md
+  - Claims: claims.md
   - Error Handling: errors.md
   - Configuration: config.md
   - Development:
