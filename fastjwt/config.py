@@ -1,3 +1,4 @@
+from typing import List
 from typing import Optional
 from typing import Sequence
 from datetime import timedelta
@@ -34,7 +35,7 @@ class FJWTConfig(BaseSettings):
     JWT_IDENTITY_CLAIM: str = "sub"
     JWT_PRIVATE_KEY: Optional[str] = None
     JWT_PUBLIC_KEY: Optional[str] = None
-    JWT_REFRESH_TOKEN_EXPIRES: Optional[timedelta] = timedelta(minutes=15)
+    JWT_REFRESH_TOKEN_EXPIRES: Optional[timedelta] = timedelta(days=20)
     JWT_SECRET_KEY: Optional[str] = None
     JWT_TOKEN_LOCATION: TokenLocations = Field(["headers"])
     # Header Options
@@ -70,6 +71,13 @@ class FJWTConfig(BaseSettings):
     # JSON Option
     JWT_JSON_KEY: str = "access_token"
     JWT_REFRESH_JSON_KEY: str = "refresh_token"
+
+    # Implicit Refresh Options
+    JWT_IMPLICIT_REFRESH_ROUTE_EXCLUDE: List[str] = Field(default_factory=list)
+    JWT_IMPLICIT_REFRESH_ROUTE_INCLUDE: List[str] = Field(default_factory=list)
+    JWT_IMPLICIT_REFRESH_METHOD_EXCLUDE: HTTPMethods = Field(default_factory=list)
+    JWT_IMPLICIT_REFRESH_METHOD_INCLUDE: HTTPMethods = Field(default_factory=list)
+    JWT_IMPLICIT_REFRESH_DELTATIME: timedelta = timedelta(minutes=10)
 
     @property
     def is_algo_symmetric(self) -> bool:

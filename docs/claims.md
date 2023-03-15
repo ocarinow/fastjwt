@@ -1,57 +1,9 @@
-# Payload
-
-## Token Payload object
-
-fastjwt introduce a `TokenPayload` pydantic's BaseModel to handle JWT claims and operations.
-When fastjwt generates a token it can be deserialized to an easy to use `TokenPayload` instance.
-
-```py
-from fastjwt import FastJWT
-from fastjwt import TokenPayload
-
-security = FastJWT(...)
-token = security.create_access_token("unique_identifier")
-payload = TokenPayload.decode(token, verify=False)
-
-print(payload.sub)
->>> "unique_identifier"
-```
-
-You can check the [`TokenPayload` API](./../callbacks/token.md) for additional detail.
-
-The `TokenPayload` provides `TokenPayload.encode` and `TokenPayload.decode` methods to serialize/deserialize JWTs. 
-Please note that the `TokenPayload.decode` methods when used with verification step _(`verify=True`)_ does only check for signature validity and does not provides additional checks like token type checking, token freshness validation or CSRF protcetion. This object **is NOT used for validation** purposes but acts as an helper class for serialization/deserialization.
-
-### As dependency
-
-`TokenPayload` are returned while used as dependency with the following methods:
-
-- `FastJWT.token_required`
-- `FastJWT.fresh_token_required`
-- `FastJWT.access_token_required`
-- `FastJWT.refresh_token_required`
-
-```py
-from fastapi import FastAPI
-from fastjwt import FastJWT
-from fastjwt import TokenPayload
-
-app = FastAPI()
-security = FastJWT()
-
-@app.get('/protected')
-def protected_endpoint(payload: TokenPayload = Depends(security.token_required())):
-    # Yo can now access the data contained in the payload
-    print(payload)
-    ...
-```
-
-Note that all the methods referenced above require a valid token to procede.
-
-## Claims
+# Claims
 
 The JSON Web Tokens might contain the following **claims** _(json keys)_. You can find additional details on the [official standard specification](https://www.rfc-editor.org/rfc/rfc7519).
 All the following claims are the standard JWT claims and are handled by fastjwt during execution. You must avoid interacting with these values manually.
+
+## Standard JWT Claims
 
 ### `iss`
 

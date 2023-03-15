@@ -8,6 +8,7 @@ theme:
   features:
     - navigation.path
     - navigation.tracking
+    - content.code.annotate
   palette:
     - scheme: default
       media: "(prefers-color-scheme: light)"
@@ -24,9 +25,9 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
 markdown_extensions:
-  - pymdownx.superfences
   - attr_list
   - md_in_html
+  - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - abbr
@@ -41,6 +42,11 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 plugins:
   - search
   - mkdocstrings
@@ -48,21 +54,30 @@ nav:
   - Overview: index.md
   - Get Started: 
     - get-started/install.md
-    - get-started/tutorial.md
-    - get-started/payload.md
-    - get-started/refresh.md
-    - get-started/fresh.md
-  - Callbacks:
+    - get-started/base_usage.md
+    - get-started/payload_data.md
+  - JWT Locations: locations.md
+  - Refreshing tokens: refresh.md
+  - Token Freshness: fresh.md
+  - Custom Callbacks:
     - callbacks/user.md
     - callbacks/token.md
-  - JWT Locations: locations.md
-  - Dependencies: deps.md
+  - Dependencies:
+    - dependencies/injection.md
+    - dependencies/deps.md
+    - dependencies/bundle.md
+  - Claims: claims.md
   - Error Handling: errors.md
   - Configuration: config.md
+  - Development:
+    - Semantic Versioning: dev/semver.md
   - API:
+    - api/types.md
     - api/fastjwt.md
     - api/config.md
     - api/deps.md
+    - api/token_payload.md
+    - api/request_token.md
     
 extra:
   generator: true

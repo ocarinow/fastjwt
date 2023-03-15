@@ -13,7 +13,8 @@ from fastjwt.core import _get_token_from_cookies
 from fastjwt.core import _get_token_from_headers
 from fastjwt.core import _get_token_from_request
 from fastjwt.config import FJWTConfig
-from fastjwt.exceptions import NoAuthorizationError
+from fastjwt.exceptions import MissingTokenError
+from fastjwt.exceptions import MissingCSRFTokenError
 
 
 # region Fixtures
@@ -129,7 +130,7 @@ async def test_get_token_from_query_with_exception(config: FJWTConfig):
         }
     )
 
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await _get_token_from_query(request=req, config=config)
 
 
@@ -184,7 +185,7 @@ async def test_get_token_from_headers_without_header_type(config: FJWTConfig):
 async def test_get_token_from_headers_with_token_exception(config: FJWTConfig):
     req = Request(scope={"type": "http", "headers": []})
 
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await _get_token_from_headers(request=req, config=config)
 
 
@@ -286,7 +287,7 @@ async def test_get_token_from_cookies_post_with_csrf_exception(
             "headers": [*request_cookies],
         }
     )
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingCSRFTokenError):
         await _get_token_from_cookies(request=req, config=config)
 
 
@@ -302,7 +303,7 @@ async def test_get_token_from_cookies_post_with_missing_token_exception(
             "headers": [],
         }
     )
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await _get_token_from_cookies(request=req, config=config)
 
 
@@ -325,7 +326,7 @@ async def test_get_token_from_json_post_content_type_exception(
         receive=request_body,
     )
 
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await _get_token_from_json(request=req, config=config)
 
 
@@ -379,7 +380,7 @@ async def test_get_token_from_json_post_with_exception(
         receive=void_receiver,
     )
 
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await _get_token_from_json(request=req, config=config)
 
 
@@ -407,7 +408,7 @@ async def test_get_token_from_json_post_with_bad_data_exception(
         receive=bad_receiver,
     )
 
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await _get_token_from_json(request=req, config=config)
 
 
@@ -437,7 +438,7 @@ async def test_get_token_from_request_with_exception(config: FJWTConfig):
         },
         receive=request_body,
     )
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await _get_token_from_request(request=req, config=config)
 
 
@@ -472,7 +473,7 @@ async def test_get_token_from_request_with_locations(
     assert request_token.csrf == "REFRESH_CSRF_TOKEN"
     assert request_token.token == "REFRESH_TOKEN"
 
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await _get_token_from_request(
             request=http_request, config=config, locations=[], refresh=True
         )

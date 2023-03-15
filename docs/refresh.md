@@ -11,10 +11,13 @@ Since JWTs have a strict `exp` Expiration Time, a long session might result in m
 
 When your application cannot use implicit refresh because cookies are not an option _(mobile application, SDKs, APIs,...)_, you might need to declare explicitly the refresh logic on you application.
 
-```py linenums="1" hl_lines="26-31"
+```py linenums="1" hl_lines="27-34"
 from pydantic import BaseModel
-from fastapi import FastAPI, Depends, HTTPException
-from fastjwt import FastJWT, TokenPayload
+from fastapi import FastAPI
+from fastapi import Depends
+from fastapi import HTTPException
+from fastjwt import FastJWT
+from fastjwt import TokenPayload
 
 app = FastAPI()
 security = FastJWT()
@@ -39,20 +42,20 @@ def login(data: LoginForm):
 # the refresh token validation.
 @app.post('/refresh')
 def refresh(
-    refresh_payload: TokenPayload = Depends(security.refresh_token_required())
+    refresh_payload: TokenPayload = Depends(security.refresh_token_required)
 ):
     access_token = security.create_access_token(refresh_payload.sub)
     return {"access_token": access_token}
 
 
-@app.get('/protected', dependencies=[Depends(security.access_token_required())])
+@app.get('/protected', dependencies=[Depends(security.access_token_required)])
 def protected():
     return "You have access to this protected resource"
 ```
 
 On this example, the `/refresh` route will only look for a valid refresh token in request. Once verified, it generates a new access token to be used to extend the session. 
 
-This example is a very basic implementation of an explicit refresh mechanism. On a production case you might want to retrieve the current acces token to revoke it. Hence avoiding to generate infinite valid access token.
+This example is a very basic implementation of an explicit refresh mechanism. On a production case you might want to retrieve the current access token to revoke it. Hence avoiding to generate infinite valid access token.
 
 === "1. Login"
 
@@ -77,4 +80,3 @@ This example is a very basic implementation of an explicit refresh mechanism. On
     ```
 
 As you can see on the last step, refreshing mechanism allow to obtain new tokens without the need to authenticate again.
-Be aware this mechanism should be used caution.

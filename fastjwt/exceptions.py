@@ -37,8 +37,20 @@ class TokenError(FastJWTException):
     pass
 
 
+class MissingTokenError(TokenError):
+    """Exception raised when no token can be parsed from request"""
+
+    pass
+
+
+class MissingCSRFTokenError(MissingTokenError):
+    """Exception raised when no CSRF token can be parsed from request"""
+
+    pass
+
+
 class TokenTypeError(TokenError):
-    """Base Exception for token related errors"""
+    """Exception raised when a specific token type is expected"""
 
     pass
 
@@ -61,13 +73,13 @@ class FreshTokenRequiredError(TokenError):
     pass
 
 
-class AccessTokenRequiredError(TokenError):
-    """Exception raised when an 'access' token is missing from request"""
+class AccessTokenRequiredError(TokenTypeError):
+    """Exception raised when an `access` token is missing from request"""
 
     pass
 
 
-class RefreshTokenRequiredError(TokenError):
-    """Exception raised when an 'refresh' token is missing from request"""
+class RefreshTokenRequiredError(TokenTypeError):
+    """Exception raised when an `refresh` token is missing from request"""
 
     pass

@@ -12,11 +12,10 @@
 <a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-publish.yaml/badge.svg" alt="Publish Status" /></a></p>
 
 <p style="text-align:center;">
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/dev/reports/coverage-badge.svg" alt="Coverage" /></a>
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/dev/reports/docstr-badge.svg" alt="Docstring" /></a>
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/dev/reports/flake8-badge.svg" alt="Flake8" /></a>
-<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/dev/reports/tests-badge.svg" alt="Tests" /></a></p>
-
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/coverage-badge.svg" alt="Coverage" /></a>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/docstr-badge.svg" alt="Docstring" /></a>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/flake8-badge.svg" alt="Flake8" /></a>
+<a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status"><img src="https://raw.githubusercontent.com/ocarinow/fastjwt/main/reports/tests-badge.svg" alt="Tests" /></a></p>
 
 <p style="text-align:center;">
 <a href="https://github.com/ocarinow/fastjwt/commits" alt="Stars"><img src="https://img.shields.io/github/commit-activity/m/ocarinow/fastjwt" alt="Commit Activity" /></a>
@@ -31,24 +30,32 @@
 <a href="https://github.com/ocarinow/fastjwt/watchers" alt="Watchers"><img src="https://img.shields.io/github/watchers/ocarinow/fastjwt?style=social" alt="Watchers" /></a>
 </p>
 
-
 FastAPI Plugin for reusable JWT Authentication Management
 
 **fastjwt** enables easy JSON Web Tokens management within your FastAPI application.
 
 _fastjwt_ is heavily inspired from its Flask equivalent [Flask-JWT-Extended](https://flask-jwt-extended.readthedocs.io/en/stable/)
 
-**Documentation**: https://ocarinow.github.io/fastjwt/
+**Documentation**: [https://ocarinow.github.io/fastjwt/](https://ocarinow.github.io/fastjwt/)
 
 ## Features
 
-- [x] Handles request for JWT in Cookies, Headers, Query Parameters and request Body
-- [ ] Handles Token Blocklist via custom callbacks
-- [ ] Handles User ORM via custom callbacks
-- [X] Protected routes
-- [X] Protected routes with fresh token/login
-- [X] Implicit/Explicit Token Refresh mechanisms
-- [ ] Partially protected routes
+- [X] Encode/Decode JWT for application Authentication
+- [X] Automatic JWT detection in request
+    - [X] JWT in Headers
+    - [X] JWT in Cookies
+    - [X] JWT in Query strings
+    - [X] JWT in JSON Body
+- [X] Implicit/Explicit token refresh mechanism
+- [X] Freshness state of token
+- [X] Route protection
+    - [X] Token type based protection _(access/refresh)_
+    - [X] Token freshness protection
+    - [X] Partial route protection
+- [X] Handle custom user logic for revoked token validation
+- [X] Handle custom logic for token recipient retrieval _(ORM, pydantic serialization...)_
+- [X] Provide FastAPI compliant dependency injection API
+- [X] Automatic error handling
 
 ## Setup
 
@@ -94,17 +101,15 @@ def protected():
 ## Development
 
 > <span style="color:orange;">**WORK IN PROGRESS**</span>
-> 
+>
 > The development guide is not available yet
 
 ## Contributing
 
 > <span style="color:orange;">**WORK IN PROGRESS**</span>
-> 
+>
 > The contribution guide is not available yet
 
 ## License
 
-> <span style="color:orange;">**WORK IN PROGRESS**</span>
-> 
-> The license is not available yet (open source MIT considered)
+This project is open source and under [MIT License](https://github.com/ocarinow/fastjwt/blob/main/LICENSE)
