@@ -28,10 +28,26 @@ from .exceptions import CSRFError
 from .exceptions import JWTDecodeError
 from .exceptions import TokenTypeError
 from .exceptions import FreshTokenRequiredError
+from .exceptions import AccessTokenRequiredError
+from .exceptions import RefreshTokenRequiredError
 
 
 class TokenPayload(BaseModel):
-    """JWT Payload base model"""
+    """JWT Payload base model
+
+    Args:
+        jti (Optional[str]): JWT unique identifier. Defaults to UUID4.
+        iss (Optional[str]): JWT issuer. Defaults to None.
+        sub (Optional[str]): JWT subject. Defaults to None.
+        aud (Optional[str]): JWT audience. Defaults to None.
+        exp (Numeric | DateTimeExpression | None): Expiry date claim. Defaults to None.
+        nbf (Numeric | DateTimeExpression | None): Not before claim. Defaults to None.
+        iat (Numeric | DateTimeExpression | None): Issued at claim. Defaults to None.
+        type (Optional[str]): Token type. Default to None.
+        csrf (Optional[str]): CSRF double submit token. Default to None.
+        scopes (Optional[List[str]]): TODO.
+        fresh (bool): Token freshness state. Defaults to False.
+    """
 
     jti: Optional[str] = Field(default_factory=get_uuid)
     iss: Optional[str] = None
@@ -53,6 +69,68 @@ class TokenPayload(BaseModel):
     @property
     def _additional_fields(self) -> set[str]:
         return set(self.__dict__) - set(self.__fields__)
+
+    @property
+    def extra_dict(self):
+        return self.dict(include=self._additional_fields)
+
+    @property
+    def issued_at(self) -> datetime.datetime:
+        """Cast the 'iat' claim as a datetime.datetime
+
+        Raises:
+            TypeError: 'iat' claim is not of type float | int | datetime.datetime
+
+        Returns:
+            datetime.datetime: UTC Datetime token issued date
+        """
+        if isinstance(self.iat, (float, int)):
+            return datetime.datetime.fromtimestamp(self.iat, tz=datetime.timezone.utc)
+        elif isinstance(self.iat, datetime.datetime):
+            return self.iat
+        else:
+            raise TypeError(
+                "'iat' claim should be of type float | int | datetime.datetime"
+            )
+
+    @property
+    def expiry_datetime(self) -> datetime.datetime:
+        """Cast the 'exp' claim as a datetime.datetime
+
+        Raises:
+            TypeError: 'exp' claim is not of type float | int | datetime.datetime | datetime.timedelta
+
+        Returns:
+            datetime.datetime: UTC Datetime token expiry date
+        """
+        if isinstance(self.exp, datetime.datetime):
+            return self.exp
+        elif isinstance(self.exp, datetime.timedelta):
+            return self.issued_at + self.exp
+        elif isinstance(self.exp, (float, int)):
+            return datetime.datetime.fromtimestamp(self.exp, tz=datetime.timezone.utc)
+        else:
+            raise TypeError(
+                "'exp' claim should be of type float | int | datetime.datetime | datetime.timedelta"
+            )
+
+    @property
+    def time_until_expiry(self) -> datetime.timedelta:
+        """Return the time remaining until expiry
+
+        Returns:
+            datetime.timedelta: time remaining until expiry
+        """
+        return self.expiry_datetime - get_now()
+
+    @property
+    def time_since_issued(self) -> datetime.timedelta:
+        """Return the time elapsed since token has been issued
+
+        Returns:
+            datetime.timedelta: time elapsed since token has been issued
+        """
+        return get_now() - self.issued_at
 
     @validator("exp", "nbf", always=True)
     def _set_default_ts(cls, value):
@@ -147,11 +225,11 @@ class TokenPayload(BaseModel):
 class RequestToken(BaseModel):
     """Base model for token data retrieved from requests
 
-    Notes:
-        token (Optional[str]): The token retrieved from the request
-        csrf (Optional[str]): CSRF Value in request if detailed
-        type (TokenType): Type of token.
-        location (TokenLocation): Where the token was found in request
+    Args:
+        type (TokenType): Type of token. Defaults to access.
+        token (Optional[str]): The token retrieved from the request. Defaults to None.
+        csrf (Optional[str]): CSRF Value in request if detailed. Defaults to None.
+        location (TokenLocation): Where the token was found in request.
     """
 
     token: Optional[str] = None
@@ -206,22 +284,24 @@ class RequestToken(BaseModel):
             # Parse payload
             payload = TokenPayload.parse_obj(decoded_token)
         except JWTDecodeError as e:
-            print("JWTERROR", e.args)
-            raise JWTDecodeError(e.args[0])
+            raise JWTDecodeError(*e.args)
         except ValidationError as e:
-            raise JWTDecodeError(e.args[0])
+            raise JWTDecodeError(*e.args)
 
         # TODO Verify Headers
 
         if verify_type and (self.type != payload.type):
-            raise TokenTypeError(
-                f"'{self.type}' token required, '{payload.type}' token received"
-            )
+            error_msg = f"'{self.type}' token required, '{payload.type}' token received"
+            if self.type == "access":
+                raise AccessTokenRequiredError(error_msg)
+            elif self.type == "refresh":
+                raise RefreshTokenRequiredError(error_msg)
+            raise TokenTypeError(error_msg)
 
         if verify_fresh and not payload.fresh:
             raise FreshTokenRequiredError("Fresh token required")
 
-        if verify_csrf:
+        if verify_csrf and self.location == "cookies":
             if self.csrf is None:
                 raise CSRFError("Missing CSRF in request")
             if payload.csrf is None:

@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "fastjwt"
-version = "0.2.0"
+version = "0.2.1"
 description = "FastAPI Plugin for reusable JWT Authentication Management"
 authors = ["Walid BENBIHI <contact@ocarinow.com>"]
-homepage = "https://github.com/ocarinow/fastjwt"
+homepage = "https://ocarinow.github.io/fastjwt/"
 repository = "https://github.com/ocarinow/fastjwt"
 keywords = ["fastapi", "jwt", "JSON-Web-Token", "authentication", "security", "api"]
 license = "MIT"

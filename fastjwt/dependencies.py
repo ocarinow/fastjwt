@@ -51,6 +51,20 @@ class FastJWTDeps(Generic[T]):
             uid, fresh, headers, expiry, data, audience, *args, **kwargs
         )
 
+    def create_refresh_token(
+        self,
+        uid: str,
+        headers: Optional[Dict[str, Any]] = None,
+        expiry: Optional[DateTimeExpression] = None,
+        data: Optional[Dict[str, Any]] = None,
+        audience: Optional[StrOrSeq] = None,
+        *args: Any,
+        **kwargs: Any
+    ) -> str:
+        return self._security.create_refresh_token(
+            uid, headers, expiry, data, audience, *args, **kwargs
+        )
+
     def set_access_cookies(
         self, token, response: Optional[Response] = None, max_age: Optional[int] = None
     ):

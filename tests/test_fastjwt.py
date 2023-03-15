@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -7,7 +5,7 @@ from fastapi.responses import JSONResponse
 from fastjwt.models import RequestToken
 from fastjwt.models import TokenPayload
 from fastjwt.fastjwt import FastJWT
-from fastjwt.exceptions import NoAuthorizationError
+from fastjwt.exceptions import MissingTokenError
 
 
 @pytest.fixture(scope="function")
@@ -165,7 +163,7 @@ async def test_get_token_from_request_without_auth(fjwt: FastJWT):
             "headers": [],
         }
     )
-    with pytest.raises(NoAuthorizationError):
+    with pytest.raises(MissingTokenError):
         await fjwt._get_token_from_request(
             request=req, refresh=False, locations=["headers"]
         )
@@ -257,10 +255,8 @@ async def test_token_required(fjwt: FastJWT, access_token: str):
         }
     )
 
-    dependency = fjwt.token_required()
-    access_token: TokenPayload = await dependency(
-        request=req, verify_fresh=True, type="access"
-    )
+    dependency = fjwt.token_required(verify_fresh=True, type="access")
+    access_token: TokenPayload = await dependency(request=req)
     assert access_token.type == "access"
 
 

@@ -1,0 +1,3 @@
+# Type Hints
+
+::: fastjwt.types

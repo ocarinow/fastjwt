@@ -1,0 +1,3 @@
+# RequestToken
+
+::: fastjwt.models.RequestToken

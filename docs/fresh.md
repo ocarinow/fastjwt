@@ -20,8 +20,11 @@ Let's start from the example in the previous [Refreshing tokens](./refresh.md#ex
 
 ```py linenums="1"
 from pydantic import BaseModel
-from fastapi import FastAPI, Depends, HTTPException
-from fastjwt import FastJWT, TokenPayload
+from fastapi import FastAPI
+from fastapi import Depends
+from fastapi import HTTPException
+from fastjwt import FastJWT
+from fastjwt import TokenPayload
 
 app = FastAPI()
 security = FastJWT()
@@ -49,7 +52,7 @@ def login(data: LoginForm):
 # the refresh token validation.
 @app.post('/refresh')
 def refresh(
-    refresh_payload: TokenPayload = Depends(security.refresh_token_required())
+    refresh_payload: TokenPayload = Depends(security.refresh_token_required)
 ):
     access_token = security.create_access_token(
         refresh_payload.sub, 
@@ -58,22 +61,22 @@ def refresh(
     return {"access_token": access_token}
 
 
-@app.get('/protected', dependencies=[Depends(security.access_token_required())])
+@app.get('/protected', dependencies=[Depends(security.access_token_required)])
 def protected():
     return "You have access to this protected resource"
 
-@app.get('/sensitive_operation', dependencies=[Depends(security.fresh_token_required())])
+@app.get('/sensitive_operation', dependencies=[Depends(security.fresh_token_required)])
 def sensitive_operation():
     return "You have access to this sensitive operation"
 ```
 
 ### Create fresh access tokens
 
-To create `fresh` access token, use `fresh=True` argument in `FastJWT.create_access_token` method. 
+To create a `fresh` access token, use `fresh=True` argument in `FastJWT.create_access_token` method. 
 
 On the `/login` route, we set the `fresh` argument to `True` because the token is generated after the user explicitly provided username/password combo.
 
-```py linenums="12" hl_lines="4-7"
+```py linenums="15" hl_lines="4-7"
 @app.post('/login')
 def login(data: LoginForm):
     if data.username == "test" and data.password == "test":
@@ -89,16 +92,19 @@ def login(data: LoginForm):
     raise HTTPException(401, "Bad username/password")
 ```
 
+!!! note
+    `FastJWT.create_access_token` has by default `fresh=False` to avoid implicit fresh token generation
+
 ### Refreshing tokens
 
 When refreshing tokens, you should always generate **NOT** `fresh` tokens.
 On the example below the `fresh` argument is set to `Fasle` explicitly, 
 the default behavior for the `FastJWT.create_access_token` is to generate a NON `fresh` token.
 
-```py linenums="29" hl_lines="5-8"
+```py linenums="32" hl_lines="5-8"
 @app.post('/refresh')
 def refresh(
-    refresh_payload: TokenPayload = Depends(security.refresh_token_required())
+    refresh_payload: TokenPayload = Depends(security.refresh_token_required)
 ):
     access_token = security.create_access_token(
         refresh_payload.sub, 
@@ -114,12 +120,12 @@ The first `/protected` route acts as usual, regardless of the `fresh` token's st
 At the opposite, the `/sensitive_operation` route will now require a fresh token to be executed.
 This behavior is defined by the `FastJWT.fresh_token_required` dependency
 
-```py linenums="40" hl_lines="5-8"
-@app.get('/protected', dependencies=[Depends(security.access_token_required())])
+```py linenums="43" hl_lines="5-8"
+@app.get('/protected', dependencies=[Depends(security.access_token_required)])
 def protected():
     return "You have access to this protected resource"
 
-@app.get('/sensitive_operation', dependencies=[Depends(security.fresh_token_required())])
+@app.get('/sensitive_operation', dependencies=[Depends(security.fresh_token_required)])
 def sensitive_operation():
     return "You have access to this sensitive operation"
 ```
@@ -154,7 +160,6 @@ def sensitive_operation():
     ```
 
 ??? note "Note on Internal server error"
-
-    As you might notice, the step 4 results in an 500 HTTP Internal Server Error. 
+    As you might notice, the step 4 results in an 500 HTTP Internal Server Error.
     This is the expected behavior, since error handling is by default disabled on FastJWT and should be enabled or
     handled by you to avoid errors

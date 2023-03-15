@@ -62,8 +62,6 @@ def test_config_asymmetric_key():
 def test_config_has_location():
     config = FJWTConfig()
 
-    print(config.JWT_TOKEN_LOCATION)
-
     assert config.has_location("headers")
     assert config.has_location("headers")
     assert config.has_location("cookies") is False
