@@ -51,8 +51,8 @@ def get_token(token: RequestToken = Depends(get_token_dep)):
 
 @app.delete("/logout", dependencies=[Depends(security.access_token_required)])
 def logout(token: RequestToken = Depends(get_token_dep)):
-    REVOKED_TOKEN.append(token)
-    return {"access_token": token}
+    REVOKED_TOKEN.append(token.token)
+    return "OK"
 
 @app.get("/profile", dependencies=[security.access_token_required])
 def profile():
@@ -172,9 +172,13 @@ In our example when the user request the `DELETE /logout` endpoint, we log out t
 ```py linenums="43" hl_lines="1 2"
 @app.delete("/logout", dependencies=[Depends(security.access_token_required)])
 def logout(token: RequestToken = Depends(get_token_dep)):
-    REVOKED_TOKEN.append(token)
-    return {"access_token": token}
+    REVOKED_TOKEN.append(token.token)
+    return "OK"
 ```
+
+!!! note "Revoking Access & Refresh"
+    If during login you generated a couple of tokens as one `access` and one `refresh` token, ensure that both tokens are revoked.
+    Since a user can use a `refresh` token to generate new `access` tokens, revoking only the `access` token is not enough to log out the user.
 
 !!! note
     Again, even if we require `/logout` to have a token in request thanks to the `get_token_dep`, we also need to ensure this token is valid and therefore we also add the `FastJWT.access_token_required` dependency.
