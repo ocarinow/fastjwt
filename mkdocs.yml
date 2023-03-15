@@ -72,6 +72,7 @@ nav:
   - Development:
     - Semantic Versioning: dev/semver.md
   - API:
+    - api/types.md
     - api/fastjwt.md
     - api/config.md
     - api/deps.md
