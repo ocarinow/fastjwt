@@ -19,12 +19,12 @@ jobs:
         with:
           python-version: 3.11
 
-      - uses: snok/install-poetry@v1
-        name: Set up Poetry for ${{ matrix.python-version }}
-        with:
-          version: 1.3.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+      # - uses: snok/install-poetry@v1
+      #   name: Set up Poetry for ${{ matrix.python-version }}
+      #   with:
+      #     version: 1.3.2
+      #     virtualenvs-create: true
+      #     virtualenvs-in-project: true
 
       - name: Checkout repository
         uses: actions/checkout@v3
