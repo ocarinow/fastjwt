@@ -45,3 +45,8 @@ tasks:
   run:
     cmds:
       - poetry run uvicorn main:app --reload --port $APP_PORT
+  mike:
+    vars: 
+      TAG: $(poetry version | grep -E -o "\d+\.\d+" | head -n 1)
+    cmds:
+      - mike deploy --push --update-aliases {{.TAG}} latest
