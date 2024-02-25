@@ -4,9 +4,9 @@ from typing import Sequence
 from datetime import timedelta
 
 from pydantic import Field
-from pydantic import BaseSettings
 from jwt.algorithms import requires_cryptography
 from jwt.algorithms import get_default_algorithms
+from pydantic_settings import BaseSettings
 
 from .types import StrOrSeq
 from .types import HTTPMethods
