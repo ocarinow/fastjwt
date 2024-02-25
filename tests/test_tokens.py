@@ -21,8 +21,6 @@ def test_encode_decode_token():
     KEY = "SECRET"
     ALGO = "HS256"
     token = create_token(uid="TEST", key=KEY, algorithm=ALGO, type="TYPE", csrf=False)
-    with pytest.raises(JWTDecodeError):
-        decode_token(token, key=KEY, algorithms=[ALGO])
 
     payload = decode_token(token, key=KEY, algorithms=[ALGO], verify=False)
 
@@ -280,12 +278,14 @@ def test_verify_token():
     SLEEP_TIME = 2
 
     # Test iat Error
+    iat = datetime.now(tz=timezone.utc) + timedelta(seconds=SLEEP_TIME)
     token = create_token(
         uid="TEST",
         key=KEY,
         algorithm=ALGO,
         type="TYPE",
         csrf=False,
+        issued=iat,
     )
     with pytest.raises(JWTDecodeError):
         decode_token(token, key=KEY, algorithms=[ALGO], verify=True)

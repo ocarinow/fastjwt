@@ -5,23 +5,27 @@ description = "FastAPI Plugin for reusable JWT Authentication Management"
 authors = ["Walid BENBIHI <contact@ocarinow.com>"]
 homepage = "https://ocarinow.github.io/fastjwt/"
 repository = "https://github.com/ocarinow/fastjwt"
-keywords = ["fastapi", "jwt", "JSON-Web-Token", "authentication", "security", "api"]
+keywords = [
+    "fastapi",
+    "jwt",
+    "JSON-Web-Token",
+    "authentication",
+    "security",
+    "api",
+]
 license = "MIT"
 readme = "README.md"
-packages = [
-    { include = "fastjwt/"}
-]
+packages = [{ include = "fastjwt/" }]
 
 [tool.poetry.dependencies]
 python = ">=3.9"
-pydantic = "^1.10.5"
-pyjwt = {extras = ["crypto"], version = "^2.6.0"}
-typing-extensions = {version = "^4.5.0", python = "<=3.9"}
+pydantic = ">=1.10"
+pydantic-settings = "^2.2.1"
+typing-extensions = "^4.9.0"
+pyjwt = {extras = ["crypto"], version = "^2.8.0"}
 
 
 [tool.poetry.group.dev.dependencies]
-fastapi = "^0.92.0"
-uvicorn = "^0.20.0"
 black = "^23.1.0"
 pre-commit = "^3.1.1"
 flake8 = "^6.0.0"
@@ -30,12 +34,16 @@ python-semantic-release = "^7.33.2"
 dateparser = "^1.1.7"
 pytest = "^7.2.2"
 pytest-cov = "^4.0.0"
-coverage = {extras = ["toml"], version = "^7.2.1"}
+coverage = { extras = ["toml"], version = "^7.2.1" }
 pytest-asyncio = "^0.20.3"
-genbadge = {extras = ["all"], version = "^1.1.0"}
+genbadge = { extras = ["all"], version = "^1.1.0" }
 docstr-coverage = "^2.2.0"
 mkdocs-material = "^9.1.1"
-mkdocstrings = {extras = ["python"], version = "^0.20.0"}
+mkdocstrings = { extras = ["python"], version = "^0.20.0" }
+
+
+[tool.poetry.group.app.dependencies]
+fastapi = "^0.110.0"
 
 [tool.isort]
 profile = "black"
@@ -59,23 +67,21 @@ addopts = "--junitxml=reports/junit.xml --cov=fastjwt --cov-report=html --cov-re
 filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.semantic_release]
-version_variable = [
-    "fastjwt/__init__.py:__version__",
-]
-version_toml= "pyproject.toml:tool.poetry.version"
-version_source= "commit"
-prerelease_tag= "rc"
+version_variable = ["fastjwt/__init__.py:__version__"]
+version_toml = "pyproject.toml:tool.poetry.version"
+version_source = "commit"
+prerelease_tag = "rc"
 tag_commit = true
 branch = "main"
 upload_to_repository = false
 upload_to_release = true
 commit_parser = "ci.commit_parser.ocarinow_commit_parser"
 build_command = "pip install poetry && poetry build"
-changelog_file="CHANGELOG.md"
-changelog_placeholder="<!--next-version-placeholder-->"
-REPOSITORY_USERNAME="__token__"
+changelog_file = "CHANGELOG.md"
+changelog_placeholder = "<!--next-version-placeholder-->"
+REPOSITORY_USERNAME = "__token__"
 pre_commit_command = "bash ci/pre_commit_command.sh"
-include_additional_files="reports/flake8-badge.svg,reports/tests-badge.svg,reports/coverage-badge.svg,reports/docstr-badge.svg"
+include_additional_files = "reports/flake8-badge.svg,reports/tests-badge.svg,reports/coverage-badge.svg,reports/docstr-badge.svg"
 
 [build-system]
 requires = ["poetry-core"]
