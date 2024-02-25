@@ -24,9 +24,7 @@ credentials/
 logs/*
 log/*
 .coverage
-reports/*.xml
-reports/*.txt
-reports/mypy*
+reports/*
 doc/build/*
 docs/_build
 doc/source/rst
