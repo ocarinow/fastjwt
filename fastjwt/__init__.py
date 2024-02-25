@@ -4,4 +4,4 @@ from fastjwt.models import TokenPayload
 from fastjwt.fastjwt import FastJWT
 from fastjwt.dependencies import FastJWTDeps
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"

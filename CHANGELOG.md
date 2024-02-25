@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.1 (2024-02-25)
+
+
+
 ## v0.3.0 (2023-03-15)
 ### Feature
 * Implicit refresh middleware ([`97b54ff`](https://github.com/ocarinow/fastjwt/commit/97b54ff619c73c04605da27cb17e05ecb05cdb4b))
