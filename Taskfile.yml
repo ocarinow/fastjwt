@@ -1,33 +1,24 @@
-version: '3'
+version: "3"
 
-dotenv: ['.env']
+dotenv:
+  - .env
+
+includes:
+  hooks: tasks/hooks.Taskfile.yml
 
 tasks:
   init:
     desc: Init the package
     cmds:
       - poetry install
-      - pre-commit install --allow-missing-config
+      - pre-commit install
   lock:
-    desc: Lock the dependencies
+    desc: Lock the dependencies as requirements.txt
     cmds:
-      - poetry export --with dev --without-hashes -f requirements.txt --output requirements.txt 
-  isort:
-    desc: Run isort on all files
-    cmds:
-      - pre-commit run isort --all-files
+      - poetry export --with dev --without-hashes -f requirements.txt --output requirements.txt
   test:
     cmds:
       - poetry run pytest tests/
-  cov:doc:
-    cmds:
-      - docstr-coverage
-  flake8:
-    cmds:
-      - poetry run flake8 fastjwt --statistics --tee --output-file ./reports/flake8stats.txt
-  doc:
-    cmds:
-      - mkdocs serve
   badges:
     cmds:
       - poetry run genbadge tests -i reports/junit.xml -o - > reports/tests-badge.svg
@@ -42,11 +33,8 @@ tasks:
   env:
     cmds:
       - cat .env.{{.CLI_ARGS}} > .env && echo "Activate <{{.CLI_ARGS}}> environment variables"
-  run:
-    cmds:
-      - poetry run uvicorn main:app --reload --port $APP_PORT
   mike:
-    vars: 
+    vars:
       TAG: $(poetry version | grep -E -o "\d+\.\d+" | head -n 1)
     cmds:
       - mike deploy --push --update-aliases {{.TAG}} latest
