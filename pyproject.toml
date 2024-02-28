@@ -97,24 +97,33 @@ tag_format = "v{version}"
 build_command = "pip install poetry && poetry build"
 version_toml = ["pyproject.toml:tool.poetry.version"]
 version_variables = ["fastjwt/__init__.py:__version__"]
+commit_parser = "ci.commitparser:OcarinowCommitParser"
+
+[tool.semantic_release.commit_parser_options]
+minor_tags = ["[FEAT]"]
+patch_tags = ["[FIX]", "[PERF]"]
 
 [tool.semantic_release.branches.main]
-match = "(main|master)"
+match = "(main|master|release|stable|latest)"
 
+[tool.semantic_release.branches.dev]
+match = "(staging|dev|bump.major)"
+prerelease = true
+prerelease_token = "rc"
 
-[tool.semantic_release]
-version_variable = ["fastjwt/__init__.py:__version__"]
-version_toml = "pyproject.toml:tool.poetry.version"
-version_source = "commit"
-prerelease_tag = "rc"
-tag_commit = true
-branch = "main"
-upload_to_repository = false
-upload_to_release = true
-commit_parser = "ci.commit_parser.ocarinow_commit_parser"
-build_command = "pip install poetry && poetry build"
-changelog_file = "CHANGELOG.md"
-changelog_placeholder = "<!--next-version-placeholder-->"
-REPOSITORY_USERNAME = "__token__"
-pre_commit_command = "bash ci/pre_commit_command.sh"
-include_additional_files = "reports/flake8-badge.svg,reports/tests-badge.svg,reports/coverage-badge.svg,reports/docstr-badge.svg"
+# [tool.semantic_release]
+# version_variable = ["fastjwt/__init__.py:__version__"]
+# version_toml = "pyproject.toml:tool.poetry.version"
+# version_source = "commit"
+# prerelease_tag = "rc"
+# tag_commit = true
+# branch = "main"
+# upload_to_repository = false
+# upload_to_release = true
+# commit_parser = "ci.commit_parser.ocarinow_commit_parser"
+# build_command = "pip install poetry && poetry build"
+# changelog_file = "CHANGELOG.md"
+# changelog_placeholder = "<!--next-version-placeholder-->"
+# REPOSITORY_USERNAME = "__token__"
+# pre_commit_command = "bash ci/pre_commit_command.sh"
+# include_additional_files = "reports/flake8-badge.svg,reports/tests-badge.svg,reports/coverage-badge.svg,reports/docstr-badge.svg"
