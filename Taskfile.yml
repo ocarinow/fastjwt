@@ -16,6 +16,10 @@ tasks:
     desc: Lock the dependencies as requirements.txt
     cmds:
       - poetry export --with dev --without-hashes -f requirements.txt --output requirements.txt
+  release:
+    desc: Emulate a new release locally
+    cmds:
+      - poetry run semantic-release version --no-vcs-release --no-push --skip-build --no-tag --no-changelog
   test:
     cmds:
       - poetry run pytest tests/
