@@ -19,7 +19,7 @@ tasks:
   release:
     desc: Emulate a new release locally
     cmds:
-      - poetry run semantic-release version --no-vcs-release --no-push --skip-build --no-tag --no-changelog
+      - poetry run semantic-release version --no-vcs-release --no-push --skip-build --no-tag --no-changelog --no-commit
   test:
     cmds:
       - poetry run pytest tests/
