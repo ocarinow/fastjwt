@@ -17,16 +17,16 @@
 <!-- GitHub Action badges -->
 <p style="text-align:center;">
     <a href="https://github.com/ocarinow/fastjwt/actions" alt="Build Status">
-        <img src="https://github.com/ocarinow/fastjwt/actions/workflows/cicd-release.yaml/badge.svg" alt="Build Status" />
+        <img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-release.yaml/badge.svg" alt="Build Status" />
     </a>
     <a href="https://github.com/ocarinow/fastjwt/actions" alt="Test Status">
-        <img src="https://github.com/ocarinow/fastjwt/actions/workflows/cicd-test.yaml/badge.svg" alt="Test Status" />
+        <img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-test.yaml/badge.svg" alt="Test Status" />
     </a>
     <a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status">
-        <img src="https://github.com/ocarinow/fastjwt/actions/workflows/cicd-publish.yaml/badge.svg" alt="Publish Status" />
+        <img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-publish.yaml/badge.svg" alt="Publish Status" />
     </a>
     <a href="https://github.com/ocarinow/fastjwt/actions" alt="Publish Status">
-        <img src="https://github.com/ocarinow/fastjwt/actions/workflows/cicd-documentation.yaml/badge.svg" alt="Documentation Status" />
+        <img src="https://github.com/ocarinow/fastjwt/actions/workflows/python-documentation.yaml/badge.svg" alt="Documentation Status" />
     </a>
 </p>
 <!-- Code quality badges -->

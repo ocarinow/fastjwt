@@ -101,12 +101,7 @@ build_command = "pip install poetry && poetry build"
 version_toml = ["pyproject.toml:tool.poetry.version"]
 version_variables = ["fastjwt/__init__.py:__version__"]
 commit_parser = "ci.commitparser:OcarinowCommitParser"
-assets = [
-    "docs/badges/coverage.svg",
-    "docs/badges/flake8.svg",
-    "docs/badges/interrogate.svg",
-    "docs/badges/pytest.svg",
-]
+assets = ["docs/badges/*"]
 
 [tool.semantic_release.commit_parser_options]
 minor_tags = ["[FEAT]"]
