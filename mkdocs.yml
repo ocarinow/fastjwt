@@ -53,6 +53,8 @@ plugins:
       handlers:
         python:
           options:
+            heading_level: 3
+            allow_inspection: true
             parameter_headings: false
             show_symbol_type_heading: true
             show_symbol_type_toc: true
@@ -71,6 +73,7 @@ nav:
   - Dependencies:
       - dependencies/injection.md
       - dependencies/deps.md
+      - dependencies/aliases.md
       - dependencies/bundle.md
   - Claims: claims.md
   - Error Handling: errors.md
@@ -84,6 +87,7 @@ nav:
       - api/deps.md
       - api/token_payload.md
       - api/request_token.md
+      - api/exceptions.md
 
 extra:
   generator: true
