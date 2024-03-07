@@ -588,7 +588,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         return Depends(self.get_dependency)
 
     @property
-    def DEP(self) -> FastJWTDeps:
+    def BUNDLE(self) -> FastJWTDeps:
         """FastAPI Dependency to return a FastJWT sub-object within the route context
 
         Note:
@@ -605,7 +605,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         return self.DEPENDENCY
 
     @property
-    def FRESH_TOKEN(self) -> TokenPayload:
+    def FRESH_REQUIRED(self) -> TokenPayload:
         """FastAPI Dependency to enforce valid token availability in request
 
         Returns:
@@ -614,7 +614,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         return Depends(self.fresh_token_required)
 
     @property
-    def ACCESS_TOKEN(self) -> TokenPayload:
+    def ACCESS_REQUIRED(self) -> TokenPayload:
         """FastAPI Dependency to enforce presence of an `access` token in request
 
         Returns:
@@ -623,7 +623,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         return Depends(self.access_token_required)
 
     @property
-    def REFRESH_TOKEN(self) -> TokenPayload:
+    def REFRESH_REQUIRED(self) -> TokenPayload:
         """FastAPI Dependency to enforce presence of a `refresh` token in request
 
         Returns:
@@ -632,7 +632,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         return Depends(self.refresh_token_required)
 
     @property
-    def RAW_ACCESS_TOKEN(self) -> RequestToken:
+    def ACCESS_TOKEN(self) -> RequestToken:
         """FastAPI Dependency to retrieve access token from request
 
         Returns:
@@ -641,7 +641,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         return Depends(self.get_token_from_request(type="access"))
 
     @property
-    def RAW_REFRESH_TOKEN(self) -> RequestToken:
+    def REFRESH_TOKEN(self) -> RequestToken:
         """FastAPI Dependency to retrieve refresh token from request
 
         Returns:
