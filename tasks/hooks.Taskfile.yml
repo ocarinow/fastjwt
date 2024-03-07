@@ -1,6 +1,13 @@
 version: "3"
 
 tasks:
+  default:
+    desc: "Run all hooks"
+    cmds:
+      - task: black
+      - task: flake8
+      - task: isort
+      - task: interrogate
   black:
     desc: "Run black hook on the project"
     cmds:
@@ -16,7 +23,4 @@ tasks:
   interrogate:
     desc: "Run interrogate hook on the project"
     cmds:
-      - interrogate  --generate-badge ./docs/badges/interrogate.svg --badge-style flat
-  # flake8:
-  #   cmds:
-  #     - poetry run flake8 fastjwt --statistics --tee --output-file ./reports/flake8stats.txt
+      - pre-commit run interrogate --all-files
