@@ -45,7 +45,7 @@ class LoginForm(BaseModel):
 app = FastAPI()
 security = FastJWT(model=User)
 
-@security.set_callback_get_model_instance
+@security.set_subject_getter
 def get_user_from_uid(uid: str) -> User:
     return User.parse_obj(FAKE_DB[uid])
 
@@ -116,12 +116,12 @@ class LoginForm(BaseModel):
 app = FastAPI()
 security = FastJWT(model=User) # (1)!
 
-@security.set_callback_get_model_instance
+@security.set_subject_getter
 def get_user_from_uid(uid: str) -> User:
     return User.parse_obj(FAKE_DB[uid])
 ```
 
-1.  You can provide type hints with multiple syntax
+1. You can provide type hints with multiple syntax
 
     === "Hint by argument"
         ```py
@@ -155,7 +155,7 @@ def get_user_from_uid(uid: str) -> User:
 
 #### Declare the custom callback for user retrieval
 
-Since fetching user/recipient/subject data depends on your application logic, FastJWT provides a `FastJWT.set_callback_get_model_instance` decorator to assign a custom callback.
+Since fetching user/recipient/subject data depends on your application logic, FastJWT provides a `FastJWT.set_subject_getter` decorator to assign a custom callback.
 
 We define the `get_user_from_uid` callback as a function taking `uid` as a main *str* positional arguemnt and returning the appropriate object for the given `uid`
 
@@ -165,7 +165,7 @@ We define the `get_user_from_uid` callback as a function taking `uid` as a main 
 app = FastAPI()
 security = FastJWT(model=User)
 
-@security.set_callback_get_model_instance
+@security.set_subject_getter
 def get_user_from_uid(uid: str) -> User:
     return User.parse_obj(FAKE_DB[uid])
 ```
@@ -177,11 +177,8 @@ def get_user_from_uid(uid: str) -> User:
         return User.parse_obj(FAKE_DB[uid])
 
     security = FastJWT(model=User)
-    security.set_callback_get_model_instance(get_user_from_uid)
+    security.set_subject_getter(get_user_from_uid)
     ```
-
-??? abstract "Feature Proposal - Decorator Naming"
-    The verbosity of `FastJWT.set_callback_get_model_instance` might encourage us to add shorter aliases in next releases
 
 ### Get User Context
 
@@ -189,16 +186,30 @@ Once the user getter callback is set, you can use the `FastJWT.get_current_subje
 
 ```py linenums="50" hl_lines="2"
 @app.get('/whoami')
-async def whoami(user: User = Depends(security.get_current_subject)):
+async def whoami(user: User = Depends(security.get_current_subject)): # (1)!
     return f"""You are:
     Firstname: {user.firstname}
     Lastname: {username.lastname}"""
 ```
 
+1. You can use `FastJWT.CURRENT_SUBJECT` dependency alias (see [Aliases](../dependencies/aliases.md))
+
+    ```py
+    async def whoami(user: User = security.CURRENT_SUBJECT):
+        ...
+    ```
+
 From the `whoami` function dependency you can access the `User` instance directly and use it without having to fetch the object inside the route logic.
 
-??? abstract "Feature Proposal - Dependency Naming"
-    `FastJWT.get_current_subject` might not be explicit enough and aliases might be added in next releases
+??? abstract "Feature - Dependency Alias"
+    `FastJWT.get_current_subject` might not be explicit enough and is quiet long. FastJWT provides aliases to avoid importing `fastapi.Depends`.
+    You can use `FastJWT.CURRENT_SUBJECT` dependency alias (see [Aliases](../dependencies/aliases.md))
+
+    ```py
+    @app.get('/whoami')
+    async def whoami(user: User = security.CURRENT_SUBJECT):
+        ...
+    ```    
 
 === "Login to get a token"
 

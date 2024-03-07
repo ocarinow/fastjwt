@@ -1,0 +1,3 @@
+# FastJWT Exception
+
+::: fastjwt.exceptions
