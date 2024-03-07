@@ -9,6 +9,14 @@ T = TypeVar("T")
 
 
 class _CallbackHandler(Generic[T]):
+    """Base Handler for user defined callbacks
+
+    Note:
+        _CallbackHandler manages callbacks for:
+            - Subject fetching/retrieval serialization
+            - Revoked token validation
+    """
+
     def __init__(self, model: T) -> None:
         """Base Handler for user defined callbacks
 
@@ -28,10 +36,12 @@ class _CallbackHandler(Generic[T]):
 
         # Exceptions
         self._callback_model_set_exception = AttributeError(
-            f"No callback function is set for model retrieval. Use `{self.__class__.__name__}.set_callback_get_model_instance` before"
+            "No callback function is set for model retrieval."
+            f" Use `{self.__class__.__name__}.set_callback_get_model_instance` before"
         )
         self._callback_token_set_exception = AttributeError(
-            f"No callback function is set for token in blocklist checks. Use `{self.__class__.__name__}.set_callback_token_blocklist` before"
+            "No callback function is set for token in blocklist checks."
+            f" Use `{self.__class__.__name__}.set_callback_token_blocklist` before"
         )
 
     @property
@@ -70,7 +80,8 @@ class _CallbackHandler(Generic[T]):
         """Set the callback to run for subject retrieval and serialization
 
         Args:
-            callback (ModelCallback[T]): Callback returning a subject object given a string UID
+            callback (ModelCallback[T]): Callback returning a subject object
+            given a string UID
         """
         self.callback_get_model_instance = callback
 
@@ -78,11 +89,31 @@ class _CallbackHandler(Generic[T]):
         """Set the callback to run for validation of revoked tokens
 
         Args:
-            callback (TokenCallback): Callback returning True if a given TOKEN is revoked
+            callback (TokenCallback): Callback returning True
+            if a given TOKEN is revoked
         """
         self.callback_is_token_in_blocklist = callback
 
+    def set_subject_getter(self, callback: ModelCallback[T]) -> None:
+        """Set the callback to run for subject retrieval and serialization
+
+        Args:
+            callback (ModelCallback[T]): Callback returning a subject object
+            given a string UID
+        """
+        self.set_callback_get_model_instance(callback)
+
+    def set_token_blocklist(self, callback: TokenCallback) -> None:
+        """Set the callback to run for validation of revoked tokens
+
+        Args:
+            callback (TokenCallback): Callback returning True
+            if a given TOKEN is revoked
+        """
+        self.set_callback_token_blocklist(callback)
+
     def _get_current_subject(self, uid: str, **kwargs) -> T:
+        """Get the current subject instance"""
         self._check_model_callback_is_set()
         callback: ModelCallback[T] = self.callback_get_model_instance
         return callback(uid, **kwargs)

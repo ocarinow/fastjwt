@@ -1,0 +1,38 @@
+version: "3"
+
+includes:
+  hooks:
+    taskfile: ./hooks.Taskfile.yml
+    internal: true
+
+tasks:
+  default:
+    desc: "Generate all badges"
+    cmds:
+      - task: pytest
+      - task: coverage
+      - task: flake8
+      - task: interrogate
+  pytest:
+    desc: "Generate pytest badge"
+    dir: "{{.USER_WORKING_DIR}}"
+    cmds:
+      - poetry run pytest tests/
+      - poetry run genbadge tests -i reports/junit.xml -o - > ./docs/badges/pytest.svg
+  coverage:
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: "Generate coverage badge"
+    cmds:
+      - poetry run pytest tests/
+      - poetry run genbadge coverage -i reports/coverage.xml -o - > ./docs/badges/coverage.svg
+  flake8:
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: "Generate flake8 badge"
+    cmds:
+      - poetry run flake8 ./fastjwt --htmldir=./reports --toml-config=./pyproject.toml --format=html --statistics --output-file ./reports/flake8stats.txt --exit-zero
+      - poetry run genbadge flake8 -i reports/flake8stats.txt -o - > ./docs/badges/flake8.svg
+  interrogate:
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: "Generate interrogate badge"
+    cmds:
+      - poetry run interrogate  -f 0 --generate-badge ./docs/badges/interrogate.svg --badge-style flat ./fastjwt

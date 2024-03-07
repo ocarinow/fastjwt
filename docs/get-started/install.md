@@ -24,6 +24,10 @@ _fastjwt_ is compatible with Python 3.9+. The current dependencies are `pydantic
 
     The `pyjwt[crypto]` will be switched to `pyjwt` to avoid adding the `cryptography` library if not needed. Next release should allow for `pip install fastjwt[crypto]`
 
+!!! note
+
+    FastAPI, while required for **fastjwt**, is not declared as a dependency and must be installed prior with `pip install fastapi`
+
 ## from repository
 
 === "pip"

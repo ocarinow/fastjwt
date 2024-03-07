@@ -1,0 +1,11 @@
+version: "3"
+
+tasks:
+  docs:
+    desc: "Serve the MkDocs documentation"
+    cmds:
+      - poetry run mkdocs serve
+  app:
+    desc: "Run the sandbox FastAPI app"
+    cmds:
+      - poetry run uvicorn main:app --reload --port 8080

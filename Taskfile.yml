@@ -1,52 +1,38 @@
-version: '3'
+version: "3"
 
-dotenv: ['.env']
+dotenv:
+  - .env
+
+includes:
+  badges: tasks/badges.Taskfile.yml
+  hooks: tasks/hooks.Taskfile.yml
+  serve: tasks/serve.Taskfile.yml
 
 tasks:
   init:
     desc: Init the package
     cmds:
       - poetry install
-      - pre-commit install --allow-missing-config
+      - pre-commit install
   lock:
-    desc: Lock the dependencies
+    desc: Lock the dependencies as requirements.txt
     cmds:
-      - poetry export --with dev --without-hashes -f requirements.txt --output requirements.txt 
-  isort:
-    desc: Run isort on all files
+      - poetry export --with dev --without-hashes -f requirements.txt --output requirements.txt
+  release:
+    desc: Simulate a new release locally
     cmds:
-      - pre-commit run isort --all-files
+      - poetry run semantic-release version --print --no-vcs-release --no-push --skip-build --no-tag --no-changelog --no-commit
   test:
+    desc: Run all tests
     cmds:
       - poetry run pytest tests/
-  cov:doc:
-    cmds:
-      - docstr-coverage
-  flake8:
-    cmds:
-      - poetry run flake8 fastjwt --statistics --tee --output-file ./reports/flake8stats.txt
-  doc:
-    cmds:
-      - mkdocs serve
-  badges:
-    cmds:
-      - poetry run genbadge tests -i reports/junit.xml -o - > reports/tests-badge.svg
-      - poetry run genbadge coverage -i reports/coverage.xml -o - > reports/coverage-badge.svg
-      - poetry run genbadge flake8 -i reports/flake8stats.txt -o - > reports/flake8-badge.svg
-  report:
-    cmds:
-      - task: test
-      - task: cov:doc
-      - task: flake8
-      - task: badges
   env:
+    desc: Set environment variables
     cmds:
       - cat .env.{{.CLI_ARGS}} > .env && echo "Activate <{{.CLI_ARGS}}> environment variables"
-  run:
-    cmds:
-      - poetry run uvicorn main:app --reload --port $APP_PORT
   mike:
-    vars: 
+    desc: Deploy documentation
+    vars:
       TAG: $(poetry version | grep -E -o "\d+\.\d+" | head -n 1)
     cmds:
       - mike deploy --push --update-aliases {{.TAG}} latest
