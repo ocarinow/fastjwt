@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastjwt"
-version = "0.3.1"
+version = "0.4.0"
 description = "FastAPI Plugin for reusable JWT Authentication Management"
 authors = ["Walid BENBIHI <contact@ocarinow.com>"]
 homepage = "https://ocarinow.github.io/fastjwt/"
@@ -101,7 +101,12 @@ build_command = "pip install poetry && poetry build"
 version_toml = ["pyproject.toml:tool.poetry.version"]
 version_variables = ["fastjwt/__init__.py:__version__"]
 commit_parser = "ci.commitparser:OcarinowCommitParser"
-assets = ["docs/badges/*"]
+assets = [
+    "docs/badges/coverage.svg",
+    "docs/badges/flake8.svg",
+    "docs/badges/interrogate.svg",
+    "docs/badges/pytest.svg",
+]
 
 [tool.semantic_release.commit_parser_options]
 minor_tags = ["[FEAT]"]
@@ -114,20 +119,3 @@ match = "(main|master|release|stable|latest)"
 match = "(staging|dev|bump.major)"
 prerelease = true
 prerelease_token = "rc"
-
-# [tool.semantic_release]
-# version_variable = ["fastjwt/__init__.py:__version__"]
-# version_toml = "pyproject.toml:tool.poetry.version"
-# version_source = "commit"
-# prerelease_tag = "rc"
-# tag_commit = true
-# branch = "main"
-# upload_to_repository = false
-# upload_to_release = true
-# commit_parser = "ci.commit_parser.ocarinow_commit_parser"
-# build_command = "pip install poetry && poetry build"
-# changelog_file = "CHANGELOG.md"
-# changelog_placeholder = "<!--next-version-placeholder-->"
-# REPOSITORY_USERNAME = "__token__"
-# pre_commit_command = "bash ci/pre_commit_command.sh"
-# include_additional_files = "reports/flake8-badge.svg,reports/tests-badge.svg,reports/coverage-badge.svg,reports/docstr-badge.svg"
