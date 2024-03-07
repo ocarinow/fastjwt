@@ -7,6 +7,7 @@ from typing import Optional
 from typing import Coroutine
 from typing import overload
 
+from fastapi import Depends
 from fastapi import Request
 from fastapi import Response
 
@@ -37,8 +38,10 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
     with JSON Web Token authentication.
 
     Args:
-        config (FJWTConfig, optional): Configuration instance to use. Defaults to FJWTConfig().
-        model (Optional[T], optional): Model type hint. Defaults to Dict[str, Any].
+        config (FJWTConfig, optional): Configuration instance to use.
+            Defaults to FJWTConfig()
+        model (Optional[T], optional): Model type hint.
+            Defaults to Dict[str, Any]
 
     Note:
         FastJWT is a Generic python object.
@@ -52,8 +55,10 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         """FastJWT base object
 
         Args:
-            config (FJWTConfig, optional): Configuration instance to use. Defaults to FJWTConfig().
-            model (Optional[T], optional): Model type hint. Defaults to Dict[str, Any].
+            config (FJWTConfig, optional): Configuration instance to use.
+                Defaults to FJWTConfig()
+            model (Optional[T], optional): Model type hint.
+                Defaults to Dict[str, Any]
         """
         super().__init__(model=model)
         super(_CallbackHandler, self).__init__()
@@ -88,6 +93,21 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         audience: Optional[StrOrSeq] = None,
         **kwargs
     ) -> TokenPayload:
+        """Create a token payload
+
+        Args:
+            uid (str): Unique identifier to generate token for
+            type (str): Token type
+            fresh (bool, optional): Generate fresh token. Defaults to False.
+            expiry (Optional[DateTimeExpression], optional): User defined expiry claim.
+                Defaults to None.
+            data (Optional[Dict[str, Any]], optional): Additional data store in token.
+                Defaults to None.
+            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
+
+        Returns:
+            TokenPayload: Token Payload instance
+        """
         # Handle additional data
         if data is None:
             data = {}
@@ -132,6 +152,22 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         audience: Optional[StrOrSeq] = None,
         **kwargs
     ) -> str:
+        """Generate a token
+
+        Args:
+            uid (str): Unique identifier to generate token for
+            type (str): Token type
+            fresh (bool, optional): Generate fresh token. Defaults to False.
+            headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
+            expiry (Optional[DateTimeExpression], optional): User defined expiry claim.
+                Defaults to None.
+            data (Optional[Dict[str, Any]], optional): Additional data store in token.
+                Defaults to None.
+            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
+
+        Returns:
+            str: Token with encoded payload
+        """
         payload = self._create_payload(
             uid=uid,
             type=type,
@@ -156,6 +192,17 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         audience: Optional[StrOrSeq] = None,
         issuer: Optional[str] = None,
     ) -> TokenPayload:
+        """Decode a token
+
+        Args:
+            token (str): Encoded token
+            verify (bool, optional): Apply verification. Defaults to True.
+            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
+            issuer (Optional[str], optional): Issuer claim. Defaults to None.
+
+        Returns:
+            TokenPayload: Token Payload instance
+        """
         return TokenPayload.decode(
             token=token,
             key=self.config.PUBLIC_KEY,
@@ -242,24 +289,22 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
             )
 
     @overload
-    async def _get_token_from_request(
+    async def _get_token_from_request(  # noqa: E704
         self,
         request: Request,
         locations: Optional[TokenLocations] = None,
         refresh: bool = False,
         optional: Literal[False] = False,
-    ) -> RequestToken:
-        ...
+    ) -> RequestToken: ...
 
     @overload
-    async def _get_token_from_request(
+    async def _get_token_from_request(  # noqa: E704
         self,
         request: Request,
         locations: Optional[TokenLocations] = None,
         refresh: bool = False,
         optional: Literal[True] = True,
-    ) -> Optional[RequestToken]:
-        ...
+    ) -> Optional[RequestToken]: ...
 
     async def _get_token_from_request(
         self,
@@ -363,9 +408,12 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
         Args:
             token (RequestToken): RequestToken instance
-            verify_type (bool, optional): Apply token type verification. Defaults to True.
-            verify_fresh (bool, optional): Apply token freshness verification. Defaults to False.
-            verify_csrf (bool, optional): Apply token CSRF verification. Defaults to True.
+            verify_type (bool, optional): Apply token type verification.
+                Defaults to True
+            verify_fresh (bool, optional): Apply token freshness verification.
+                Defaults to False
+            verify_csrf (bool, optional): Apply token CSRF verification.
+                Defaults to True
 
         Returns:
             TokenPayload: _description_
@@ -395,8 +443,10 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
             uid (str): Unique identifier to generate token for
             fresh (bool, optional): Generate fresh token. Defaults to False.
             headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
-            expiry (Optional[DateTimeExpression], optional): Use a user defined expiry claim. Defaults to None.
-            data (Optional[Dict[str, Any]], optional): Additional data to store in token. Defaults to None.
+            expiry (Optional[DateTimeExpression], optional): User defined expiry claim.
+                Defaults to None.
+            data (Optional[Dict[str, Any]], optional): Additional data store in token.
+                Defaults to None.
             audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
 
         Returns:
@@ -427,8 +477,10 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         Args:
             uid (str): Unique identifier to generate token for
             headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
-            expiry (Optional[DateTimeExpression], optional): Use a user defined expiry claim. Defaults to None.
-            data (Optional[Dict[str, Any]], optional): Additional data to store in token. Defaults to None.
+            expiry (Optional[DateTimeExpression], optional): User defined expiry claim.
+                Defaults to None.
+            data (Optional[Dict[str, Any]], optional): Additional data store in token.
+                Defaults to None.
             audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
 
         Returns:
@@ -458,7 +510,8 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         Args:
             token (str): Access token
             response (Response): response to set cookie on
-            max_age (Optional[int], optional): Max Age cookie paramater. Defaults to None.
+            max_age (Optional[int], optional): Max Age cookie paramater.
+                Defaults to None
         """
         self._set_cookies(
             token=token, type="access", response=response, max_age=max_age
@@ -475,7 +528,8 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         Args:
             token (str): Refresh token
             response (Response): response to set cookie on
-            max_age (Optional[int], optional): Max Age cookie paramater. Defaults to None.
+            max_age (Optional[int], optional): Max Age cookie paramater.
+                Defaults to None
         """
         self._set_cookies(
             token=token, type="refresh", response=response, max_age=max_age
@@ -516,6 +570,98 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
     # region Dependencies
 
+    @property
+    def DEPENDENCY(self) -> FastJWTDeps:
+        """FastAPI Dependency to return a FastJWT sub-object within the route context
+
+        Note:
+            The FastJWTDeps is a utility class, to enable quick token operations
+            within the route logic. It provides methods to avoid addtional code
+            in your route that would be outside of the route logic
+
+            Such methods includes setting and unsetting cookies without the need
+            to generate a response object beforhand
+
+        Returns:
+            FastJWTDeps: The contextful FastJWT object
+        """
+        return Depends(self.get_dependency)
+
+    @property
+    def DEP(self) -> FastJWTDeps:
+        """FastAPI Dependency to return a FastJWT sub-object within the route context
+
+        Note:
+            The FastJWTDeps is a utility class, to enable quick token operations
+            within the route logic. It provides methods to avoid addtional code
+            in your route that would be outside of the route logic
+
+            Such methods includes setting and unsetting cookies without the need
+            to generate a response object beforhand
+
+        Returns:
+            FastJWTDeps: The contextful FastJWT object
+        """
+        return self.DEPENDENCY
+
+    @property
+    def FRESH_TOKEN(self) -> TokenPayload:
+        """FastAPI Dependency to enforce valid token availability in request
+
+        Returns:
+            TokenPayload: Valid token Payload
+        """
+        return Depends(self.fresh_token_required)
+
+    @property
+    def ACCESS_TOKEN(self) -> TokenPayload:
+        """FastAPI Dependency to enforce presence of an `access` token in request
+
+        Returns:
+            TokenPayload: Valid token Payload
+        """
+        return Depends(self.access_token_required)
+
+    @property
+    def REFRESH_TOKEN(self) -> TokenPayload:
+        """FastAPI Dependency to enforce presence of a `refresh` token in request
+
+        Returns:
+            TokenPayload: Valid token Payload
+        """
+        return Depends(self.refresh_token_required)
+
+    @property
+    def RAW_ACCESS_TOKEN(self) -> RequestToken:
+        """FastAPI Dependency to retrieve access token from request
+
+        Returns:
+            RequestToken: Request Token instance
+        """
+        return Depends(self.get_token_from_request(type="access"))
+
+    @property
+    def RAW_REFRESH_TOKEN(self) -> RequestToken:
+        """FastAPI Dependency to retrieve refresh token from request
+
+        Returns:
+            RequestToken: Request Token instance
+        """
+        return Depends(self.get_token_from_request(type="refresh"))
+
+    @property
+    def CURRENT_SUBJECT(self) -> T:
+        """FastAPI Dependency to retrieve the current subject from request
+
+        Returns:
+            T: The current subject
+        """
+        return Depends(self.get_current_subject)
+
+    # endregion
+
+    # region Getters
+
     def get_dependency(self, request: Request, response: Response) -> FastJWTDeps:
         """FastAPI Dependency to return a FastJWT sub-object within the route context
 
@@ -546,16 +692,22 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         """Dependency to enforce valid token availability in request
 
         Args:
-            type (str, optional): Require a given token type. Defaults to "access".
-            verify_type (bool, optional): Apply type verification. Defaults to True.
-            verify_fresh (bool, optional): Require token freshness. Defaults to False.
-            verify_csrf (Optional[bool], optional): Enable CSRF verification. Defaults to None.
+            type (str, optional): Require a given token type.
+                Defaults to "access"
+            verify_type (bool, optional): Apply type verification.
+                Defaults to True
+            verify_fresh (bool, optional): Require token freshness.
+                Defaults to False
+            verify_csrf (Optional[bool], optional): Enable CSRF verification.
+                Defaults to None
 
         Returns:
-            Callable[[Request], TokenPayload]: Dependency for Valid token Payload retrieval
+            Callable[[Request], TokenPayload]: Dependency for Valid token
+                Payload retrieval
         """
 
         async def _auth_required(request: Request):
+            """FastAPI Dependency to enforce valid token availability in request"""
             return await self._auth_required(
                 request=request,
                 type=type,
@@ -568,7 +720,8 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
     @property
     def fresh_token_required(self) -> Callable[[Request], TokenPayload]:
-        """FastAPI Dependency to enforce presence of a `fresh` `access` token in request"""
+        """FastAPI Dependency to enforce presence of a `fresh` `access`
+        token in request"""
         return self.token_required(
             type="access",
             verify_csrf=None,
@@ -609,8 +762,8 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         Args:
             type (TokenType, optional): The type of token to retrieve from request.
                 Defaults to "access".
-            optional (bool, optional): Whether or not to enforce token presence in request.
-                Defaults to True.
+            optional (bool, optional): Whether or not to enforce token presence
+                in request. Defaults to True.
 
         Note:
             When `optional=True`, the return value might be `None`
@@ -623,6 +776,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         """
 
         async def _token_getter(request: Request):
+            """FastAPI Dependency to retrieve token from request"""
             return await self._get_token_from_request(
                 request, optional=optional, refresh=(type == "refresh")
             )
