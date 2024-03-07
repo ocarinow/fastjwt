@@ -38,6 +38,7 @@ pytest-asyncio = "^0.23.5"
 coverage = "^7.4.3"
 python-semantic-release = "^9.1.1"
 uvicorn = "^0.27.1"
+genbadge = {extras = ["all"], version = "^1.1.1"}
 
 
 [tool.poetry.group.app.dependencies]
