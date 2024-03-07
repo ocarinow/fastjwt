@@ -29,10 +29,10 @@ tasks:
     dir: "{{.USER_WORKING_DIR}}"
     desc: "Generate flake8 badge"
     cmds:
-      - flake8 ./fastjwt --htmldir=./reports --toml-config=./pyproject.toml --format=html --statistics --output-file ./reports/flake8stats.txt --exit-zero
+      - poetry run flake8 ./fastjwt --htmldir=./reports --toml-config=./pyproject.toml --format=html --statistics --output-file ./reports/flake8stats.txt --exit-zero
       - poetry run genbadge flake8 -i reports/flake8stats.txt -o - > ./docs/badges/flake8.svg
   interrogate:
     dir: "{{.USER_WORKING_DIR}}"
     desc: "Generate interrogate badge"
     cmds:
-      - interrogate  -f 0 --generate-badge ./docs/badges/interrogate.svg --badge-style flat ./fastjwt
+      - poetry run interrogate  -f 0 --generate-badge ./docs/badges/interrogate.svg --badge-style flat ./fastjwt
