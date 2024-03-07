@@ -5,6 +5,7 @@ dotenv:
 
 includes:
   hooks: tasks/hooks.Taskfile.yml
+  serve: tasks/serve.Taskfile.yml
 
 tasks:
   init:
