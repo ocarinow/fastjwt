@@ -442,12 +442,12 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         Args:
             uid (str): Unique identifier to generate token for
             fresh (bool, optional): Generate fresh token. Defaults to False.
-            headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
-            expiry (Optional[DateTimeExpression], optional): User defined expiry claim.
+            headers (Dict[str, Any], optional): TODO. Defaults to None.
+            expiry (DateTimeExpression, optional): User defined expiry claim.
                 Defaults to None.
-            data (Optional[Dict[str, Any]], optional): Additional data store in token.
+            data (Dict[str, Any], optional): Additional data store in token.
                 Defaults to None.
-            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
+            audience (StrOrSeq, optional): Audience claim. Defaults to None.
 
         Returns:
             str: Access Token
@@ -472,16 +472,17 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         *args,
         **kwargs
     ) -> str:
-        """Generate a Refresh Token
+        """Generate a refresh token
 
         Args:
             uid (str): Unique identifier to generate token for
-            headers (Optional[Dict[str, Any]], optional): TODO. Defaults to None.
-            expiry (Optional[DateTimeExpression], optional): User defined expiry claim.
+            headers (Dict[str, Any], optional): TODO. Defaults to None.
+            expiry (DateTimeExpression, optional): User defined expiry claim.
                 Defaults to None.
-            data (Optional[Dict[str, Any]], optional): Additional data store in token.
+            data (Dict[str, Any], optional): Additional data store in token.
                 Defaults to None.
-            audience (Optional[StrOrSeq], optional): Audience claim. Defaults to None.
+            audience (StrOrSeq, optional): Audience claim.
+                Defaults to None.
 
         Returns:
             str: Refresh Token
@@ -509,8 +510,8 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
         Args:
             token (str): Access token
-            response (Response): response to set cookie on
-            max_age (Optional[int], optional): Max Age cookie paramater.
+            response (Response): Response to set cookie on
+            max_age (int, optional): Max Age cookie paramater.
                 Defaults to None
         """
         self._set_cookies(
@@ -527,8 +528,8 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
 
         Args:
             token (str): Refresh token
-            response (Response): response to set cookie on
-            max_age (Optional[int], optional): Max Age cookie paramater.
+            response (Response): Response to set cookie on
+            max_age (int, optional): Max Age cookie paramater.
                 Defaults to None
         """
         self._set_cookies(
@@ -542,7 +543,7 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         """Remove 'Set-Cookie' for access token in response header
 
         Args:
-            response (Response): response to remove cooke from
+            response (Response): Response to remove cooke from
         """
         self._unset_cookies("access", response=response)
 
@@ -750,6 +751,21 @@ class FastJWT(_CallbackHandler[T], _ErrorHandler):
         )
 
     async def get_current_subject(self, request: Request) -> Optional[T]:
+        """Get the current subject instance
+
+        Use the request's token to retrieve the subject instance.
+        Enforce a validation step to ensure the token is valid.
+
+        Args:
+            request (Request): Request to retrieve token from
+
+        Returns:
+            Optional[T]: Subject instance
+
+        Note:
+            This method will always return `None` if
+            `FastJWT.set_subject_getter` has not been set first.
+        """
         token: TokenPayload = await self._auth_required(request=request)
         uid = token.sub
         return self._get_current_subject(uid=uid)
