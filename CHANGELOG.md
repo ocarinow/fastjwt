@@ -1,5 +1,35 @@
 # CHANGELOG
 
+
+
+## v0.4.1 (2024-03-07)
+
+### Documentation
+
+* [FIX][DOC] Update GitHub Action workflow names ([`8037cd8`](https://github.com/ocarinow/fastjwt/commit/8037cd8720bbf222d5968eae8d36a6a347b2afaa))
+
+### Fix
+
+* [FIX] Bump version to 0.4.1 ([`05c696e`](https://github.com/ocarinow/fastjwt/commit/05c696efb6347cda6ed22680d5f073b3e3b5eb01))
+
+### Unknown
+
+* Revert &#34;0.4.0&#34;
+
+This reverts commit 4cc13ea7a887896bd9b9dbf7b7a80532fbffcda9. ([`1ca066f`](https://github.com/ocarinow/fastjwt/commit/1ca066fbd45e18274e74bfc173b945c1a58168af))
+
+* Revert &#34;Merge branch &#39;dev&#39;&#34;
+
+This reverts commit c9beb81daf9f039b0d1d797b17e37a333a137923, reversing
+changes made to 4cc13ea7a887896bd9b9dbf7b7a80532fbffcda9. ([`054ab63`](https://github.com/ocarinow/fastjwt/commit/054ab63e585f738c0c1091bf255f790a3e22d57e))
+
+* Merge branch &#39;dev&#39; ([`c9beb81`](https://github.com/ocarinow/fastjwt/commit/c9beb81daf9f039b0d1d797b17e37a333a137923))
+
+* Merge branch &#39;bump.major&#39; into dev ([`839ee56`](https://github.com/ocarinow/fastjwt/commit/839ee562686901a84801f958194a49b44840ab9d))
+
+* [FIX][CI] ([`eea53b7`](https://github.com/ocarinow/fastjwt/commit/eea53b7240a34f54a1208f1fed2272932d7f2114))
+
+
 ## v0.4.0 (2024-03-07)
 
 ### Cicd
@@ -92,6 +122,7 @@ Update dependencies, remove unused files, and refactor commit parser module ([`f
 
 * [UPD][CONFIG] Update Taskfile.yml and add hooks and serve Taskfiles ([`cfa0b2d`](https://github.com/ocarinow/fastjwt/commit/cfa0b2ddf9ff2f05e35eaab9941996f3bee88870))
 
+
 ## v0.3.1 (2024-02-25)
 
 ### Cicd
@@ -139,6 +170,7 @@ Documentation ([`0a09189`](https://github.com/ocarinow/fastjwt/commit/0a09189e1d
 Bump 0.3.0 ([`22d6c71`](https://github.com/ocarinow/fastjwt/commit/22d6c71e16f879c9273326cd85b26a47a0a496f7))
 
 * Merge branch &#39;main&#39; into dev.doc ([`a29fa91`](https://github.com/ocarinow/fastjwt/commit/a29fa910e836f3a4ac9843cee07ae5cf019942de))
+
 
 ## v0.3.0 (2023-03-15)
 
@@ -225,9 +257,9 @@ Enable checks for revoked tokens through user defined callback ([`f2ffa56`](http
 * [FEAT](error) Move token deps as properties
 
 Set the token dependencies as non parametrizable properties to follow fastapi syntax. New properties
-* `FastJWT.fresh_token_required`
-* `FastJWT.access_token_required`
-* `FastJWT.refresh_token_required` ([`e2cb3a1`](https://github.com/ocarinow/fastjwt/commit/e2cb3a15c3ccc47f8d5399b32f90844a234d73d6))
+- `FastJWT.fresh_token_required`
+- `FastJWT.access_token_required`
+- `FastJWT.refresh_token_required` ([`e2cb3a1`](https://github.com/ocarinow/fastjwt/commit/e2cb3a15c3ccc47f8d5399b32f90844a234d73d6))
 
 * [FEAT] Error Handling ([`1dbeb47`](https://github.com/ocarinow/fastjwt/commit/1dbeb477e1746a6d0c3dbdafdee1cb22d83d780e))
 
@@ -290,6 +322,7 @@ Add new features ([`5de6c1d`](https://github.com/ocarinow/fastjwt/commit/5de6c1d
 Add new features ([`46cd5f6`](https://github.com/ocarinow/fastjwt/commit/46cd5f650cce885513743ddc306db4561de54331))
 
 * [UPD][DOC] Readme ([`a430446`](https://github.com/ocarinow/fastjwt/commit/a43044639e8a0d3bfc75ab5c98f8c64a89ba7848))
+
 
 ## v0.2.1 (2023-03-11)
 
