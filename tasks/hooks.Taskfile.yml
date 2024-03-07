@@ -1,0 +1,26 @@
+version: "3"
+
+tasks:
+  default:
+    desc: "Run all hooks"
+    cmds:
+      - task: black
+      - task: flake8
+      - task: isort
+      - task: interrogate
+  black:
+    desc: "Run black hook on the project"
+    cmds:
+      - pre-commit run black --all-files
+  flake8:
+    desc: "Run flake8 hook on the project"
+    cmds:
+      - pre-commit run flake8 --all-files
+  isort:
+    desc: "Run isort hook on the project"
+    cmds:
+      - pre-commit run isort --all-files
+  interrogate:
+    desc: "Run interrogate hook on the project"
+    cmds:
+      - pre-commit run interrogate --all-files

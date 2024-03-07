@@ -1,7 +1,7 @@
 echo "1. Check if server is alive on GET http://0.0.0.0:8000"
 echo "RESPONSE: $(curl -s -i http://0.0.0.0:8000/)"
 
-echo "\n2. Try access a protceted route at GET http://0.0.0.0:8000/protected"
+echo "\n2. Try access a protected route at GET http://0.0.0.0:8000/protected"
 echo "RESPONSE: $(curl -s http://0.0.0.0:8000/protected)"
 
 echo "\n3. Try logout without being authenticated at POST http://0.0.0.0:8000/logout"

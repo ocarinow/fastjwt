@@ -30,8 +30,8 @@ from pydantic import BaseModel
 
 import fastjwt
 from fastjwt import FastJWT
+from fastjwt import FJWTConfig
 from fastjwt import RequestToken
-from fastjwt import FastJWTConfig
 
 # ================================================================
 # MOCKUP DATABASE
@@ -43,6 +43,8 @@ from fastjwt import FastJWTConfig
 #   Note that the user model can be any type of object you want
 #   and does not need to be a BaseModel or TypedDict
 class User(TypedDict):
+    """Base User model for Type Annotationn"""
+
     name: str
     email: str
     password: str
@@ -73,18 +75,23 @@ TOKEN_BLACKLIST = []
 app = FastAPI(title="Base FastJWT Example", version=fastjwt.__version__, debug=True)
 
 # We then generate the configuration regarding the desired behavior or the JWT Plugin
-config = FastJWTConfig()
-config.JWT_COOKIE_SECURE = False  # Secure must always be set to True in Production
-config.JWT_ALGORITHM = "HS256"  # We use a symmetric algorithm for the example, please consider using asymmetric algorithm for better protection
+config = FJWTConfig()
+# Secure must always be set to True in Production
+config.JWT_COOKIE_SECURE = False
+# We use a symmetric algorithm for the example,
+# please consider using asymmetric algorithm for better protection
+config.JWT_ALGORITHM = "HS256"
 SECRET_KEY = "Secret Key"
-config.JWT_SECRET_KEY = base64.b64encode(
-    SECRET_KEY.encode()
-).decode()  # We set the secret key as a base64 encoded string
-config.JWT_LOCATIONS = [
+# We set the secret key as a base64 encoded string
+config.JWT_SECRET_KEY = base64.b64encode(SECRET_KEY.encode()).decode()
+
+# We configure the plugin to only look for JWT in Headers, Query Parameters or
+# JSON Body. We removed token in cookies
+config.JWT_TOKEN_LOCATION = [
     "headers",
     "query",
     "json",
-]  # We configure the plugin to only look for JWT in Headers, Query Parameters or JSON Body. We removed token in cookies
+]
 
 
 # We define an accessor `(str) -> User` that given a unique user identifier
@@ -116,29 +123,35 @@ def find_token_in_blacklist(token: str) -> bool:
 
 
 # Once your configuration is done you can instantiate the FastJWT object
-security: FastJWT = FastJWT(user_model=User, config=config)
+security: FastJWT[User] = FastJWT(model=User, config=config)
 # We set our custom callbacks to the FastJWT object
-security.set_user_getter(get_user_from_db)
-security.set_token_checker(find_token_in_blacklist)
+security.set_callback_get_model_instance(get_user_from_db)
+security.set_callback_token_blocklist(find_token_in_blacklist)
+security.handle_errors(app)
 
 
 class LoginForm(BaseModel):
+    """Simulate the login form data model for the example."""
+
     email: str
     password: str
 
 
 @app.get("/")
 def home():
+    """Ping route"""
     return "OK"
 
 
 @app.get("/blacklist")
 def blacklist():
+    """Return the current token blacklist."""
     return TOKEN_BLACKLIST
 
 
 @app.post("/login")
 def login(data: LoginForm):
+    """Login Route"""
     # FastJWT is not a validation tool or database management library
     # Therefore you'll need to implement the login/logout logic on
     # your own. The code below is a dummy example for the login logic
@@ -163,25 +176,38 @@ def login(data: LoginForm):
     raise HTTPException(401, detail={"message": "Bad credentials"})
 
 
-@app.post("/logout", dependencies=[Depends(security.auth_required)])
-def logout(token: RequestToken = Depends(security.get_token_from_request)):
+@app.post("/logout", dependencies=[Depends(security.access_token_required)])
+def logout(token: RequestToken = Depends(security.get_token_from_request())):
+    """Logout Route"""
     # You can access the RequestToken object via the
     # `FastJWT.get_token_from_request` method
     # Note that this method returns None if no token is provided in the request
     # This dependency does not enforce the authentication requirement
 
     # The logic here is to blacklist the token
-    TOKEN_BLACKLIST.append(token.access_token)
+    TOKEN_BLACKLIST.append(token.token)
     return "OK"
 
 
 # Use the FastJWT.auth_required Dependency as a route argument to protected a route
-@app.get("/protected", dependencies=[Depends(security.auth_required)])
+@app.get("/protected", dependencies=[Depends(security.access_token_required)])
 def protected():
+    """Protected Route"""
     return "You have access to this protected route"
 
 
-# Use the FastJWT.get_current_user_callback Dependency as a function argument to retrieve the User object
+# Use the FastJWT.get_current_user_callback Dependency as a function argument to
+# retrieve the User object
 @app.get("/me")
-def profile(user: User = Depends(security.get_current_user_callback)):
-    return f"First Name: {user['name'].split(' ')[0]} | Last Name: {user['name'].split(' ')[1]}"
+def profile(user: User = Depends(security.get_current_subject)):
+    """Protected Route to get the subject information"""
+    return (
+        f"First Name: {user['name'].split(' ')[0]} "
+        f"| Last Name: {user['name'].split(' ')[1]}"
+    )
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
