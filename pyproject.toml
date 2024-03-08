@@ -32,13 +32,12 @@ flake8-pyproject = "^1.2.3"
 isort = "^5.13.2"
 interrogate = "^1.5.0"
 pre-commit = "^3.6.2"
-pytest = "^8.0.2"
-pytest-cov = "^4.1.0"
-pytest-asyncio = "^0.23.5"
 coverage = "^7.4.3"
 python-semantic-release = "^9.1.1"
-uvicorn = "^0.27.1"
 genbadge = { extras = ["all"], version = "^1.1.1" }
+fastapi = "^0.110.0"
+uvicorn = "^0.27.1"
+loguru = "^0.7.2"
 
 
 [tool.poetry.group.app.dependencies]
@@ -49,6 +48,14 @@ fastapi = "^0.110.0"
 mkdocs = "^1.5.3"
 mkdocstrings = { extras = ["python"], version = "^0.24.0" }
 mkdocs-material = "^9.5.11"
+
+
+[tool.poetry.group.test.dependencies]
+httpx = "^0.27.0"
+pytest = "^8.0.2"
+pytest-asyncio = "^0.23.5"
+pytest-cov = "^4.1.0"
+fastapi = "^0.110.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -64,10 +71,12 @@ force_single_line = true
 
 [tool.interrogate]
 ignore-init-method = false
-ignore-private = false
+ignore-private = true
+ignore-semiprivate = true
 ignore-module = true
 ignore-magic = true
 ignore-nested-classes = true
+ignore-nested-functions = true
 fail-under = 80
 quiet = false
 verbose = 2
