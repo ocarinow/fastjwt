@@ -71,7 +71,8 @@ force_single_line = true
 
 [tool.interrogate]
 ignore-init-method = false
-ignore-private = false
+ignore-private = true
+ignore-semiprivate = true
 ignore-module = true
 ignore-magic = true
 ignore-nested-classes = true
